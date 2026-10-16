@@ -561,6 +561,7 @@ function refreshLanguage() {
   if (typeof updateLabelsButton === 'function') updateLabelsButton();
   if (typeof updateLinksButton === 'function') updateLinksButton();
   if (typeof updatePlanesButton === 'function') updatePlanesButton();
+  refreshStoryLanguage();
 }
 
 const LAYERS = {
@@ -1026,25 +1027,37 @@ const CASES = [
   {
     id: "fiber_cascade",
     title: "业务受损→尾纤故障定位",
+    titleEn: "Service degradation → fiber-jumper fault localization",
     desc: "从SQI劣化或用户投诉出发，沿业务承载关系定位尾纤故障",
+    descEn: "Trace service transport relationships from SQI degradation or a customer complaint to locate a fiber-jumper fault.",
     steps: [
       { title: "业务受损感知", action: "query_metric_window",
+        titleEn: "Detect service degradation",
+        textEn: '<b>Business Operations Layer</b> detects degraded service experience through SQI probes or customer complaints<br><span class="cmd-tag phase1">PHASE 1</span> Identify affected services and SLA anomalies, then start fault diagnosis',
         nodes: ["SLAContract","BaseStationSvc","DedicatedLineSvc"],
         links: ["基站→治理依赖","专线→治理依赖"],
         text: '<b>业务运营层</b>由SQI探针或用户投诉感知业务体验劣化<br><span class="cmd-tag phase1">PHASE1</span> 识别受损业务及SLA异常，启动故障诊断' },
       { title: "业务与承载关联", action: "diagnose_cross_domain",
+        titleEn: "Correlate service and transport",
+        textEn: '<b>Operator service view</b> correlates affected service entities with their three-layer transport paths<br><span class="cmd-tag phase1">PHASE 1</span> Confirm the fault scope and proceed to three-layer topology reasoning',
         nodes: ["BaseStationSvc","DedicatedLineSvc","ODAGovernance","CatService"],
         links: ["基站→治理依赖","专线→治理依赖","治理→业务方案"],
         text: '<b>运营商业务视图</b>关联受损业务对象及其三层承载关系<br><span class="cmd-tag phase1">PHASE1</span> 确认故障定界范围并进入三层拓扑推理' },
       { title: "三层拓扑推理", action: "trace_forwarding_path",
+        titleEn: "Reason over the three-layer topology",
+        textEn: '<b>Three-layer topology</b> traces the service path through A → B → C → D<br><span class="cmd-tag phase2">PHASE 2</span> Object D has no state, so the reasoning chain is paused',
         nodes: ["CatService","TunnelFault","CatConnection","LinkFault"],
         links: ["业务类→隧道故障","连接类→链路故障"],
         text: '<b>三层拓扑</b>沿A→B→C→D推理业务路径<br><span class="cmd-tag phase2">PHASE2</span> D对象状态缺失，当前推理链暂停' },
       { title: "A2A-T状态补全", action: "request_vendor_diagnosis",
+        titleEn: "Retrieve state through A2A-T",
+        textEn: '<b>Cross-agent collaboration</b> sends the A-Box context for object D to Huawei to retrieve its current state<br><span class="cmd-tag phase2">A2A-T</span> The vendor performs domain reasoning internally and returns only the required state and conclusion',
         nodes: ["LinkFault"],
         links: [],
         text: '<b>跨智能体协同</b>携带D对象的A-Box上下文请求华为更新状态<br><span class="cmd-tag phase2">A2A-T</span> 厂商内部完成专业推理，仅返回必要状态与结论' },
       { title: "尾纤故障定位", action: "update_abox_state",
+        titleEn: "Localize the fiber-jumper fault",
+        textEn: '<b>Diagnosis result</b> continues reasoning along D → E → F after object D\'s state is updated<br><span class="cmd-tag ok">RESULT</span> The root cause is localized to a fiber-jumper fault.',
         nodes: ["CatService","TunnelFault","LinkFault","FiberFault"],
         links: ["业务类→隧道故障","链路→光纤根因","隧道→光纤根因"],
         text: '<b>诊断结果</b>D状态更新后继续沿D→E→F完成推理<br><span class="cmd-tag ok">RESULT</span> 最终定位为尾纤故障。' }
@@ -1053,25 +1066,37 @@ const CASES = [
   {
     id: "board_fault_5g",
     title: "5G业务受损→单板故障定位",
+    titleEn: "5G service degradation → board fault localization",
     desc: "从5G业务质量异常出发，经三层拓扑推理定位单板故障",
+    descEn: "Use three-layer topology reasoning to trace degraded 5G service quality to a board fault.",
     steps: [
       { title: "5G业务受损感知", action: "query_metric_window",
+        titleEn: "Detect 5G service degradation",
+        textEn: '<b>Business Operations Layer</b> detects declining 5G service quality through SQI probes or customer complaints<br><span class="cmd-tag phase1">PHASE 1</span> Identify the affected base-station service and SLA anomalies',
         nodes: ["BaseStationSvc","SLAContract","ODABusiness"],
         links: ["商业→治理依赖","基站→治理依赖"],
         text: '<b>业务运营层</b>SQI探针发现5G业务质量下降或收到用户投诉<br><span class="cmd-tag phase1">PHASE1</span> 识别受损基站业务及SLA异常' },
       { title: "业务与承载关联", action: "diagnose_cross_domain",
+        titleEn: "Correlate service and transport",
+        textEn: '<b>Operator service view</b> correlates affected service entities with their three-layer transport paths<br><span class="cmd-tag phase1">PHASE 1</span> Define the fault scope and proceed to topology reasoning',
         nodes: ["BaseStationSvc","ODAGovernance","CatService"],
         links: ["基站→治理依赖","治理→业务方案"],
         text: '<b>运营商业务视图</b>关联受损业务对象及其三层承载关系<br><span class="cmd-tag phase1">PHASE1</span> 完成故障定界并进入拓扑推理' },
       { title: "三层拓扑推理", action: "trace_forwarding_path",
+        titleEn: "Reason over the three-layer topology",
+        textEn: '<b>Three-layer topology</b> checks the state of each object along the service path<br><span class="cmd-tag phase2">PHASE 2</span> The state of an object at the responsibility-domain boundary is missing, so reasoning is paused',
         nodes: ["CatService","FiveGNRM","TunnelFault"],
         links: ["业务类→5G NRM","业务类→隧道故障"],
         text: '<b>三层拓扑</b>沿业务路径逐段检查对象状态<br><span class="cmd-tag phase2">PHASE2</span> 责任域边界对象状态缺失，推理链暂停' },
       { title: "A2A-T状态补全", action: "request_vendor_diagnosis",
+        titleEn: "Retrieve state through A2A-T",
+        textEn: '<b>Cross-agent collaboration</b> sends the boundary object\'s A-Box context to Huawei to retrieve its current state<br><span class="cmd-tag phase2">A2A-T</span> The vendor performs domain reasoning internally and returns only the required state and conclusion',
         nodes: ["DeviceOffline"],
         links: [],
         text: '<b>跨智能体协同</b>携带边界对象的A-Box上下文请求华为更新状态<br><span class="cmd-tag phase2">A2A-T</span> 厂商内部完成专业推理，仅返回必要状态与结论' },
       { title: "单板故障定位", action: "update_abox_state",
+        titleEn: "Localize the board fault",
+        textEn: '<b>Diagnosis result</b> resumes three-layer reasoning after the object state is updated and completes root-cause localization<br><span class="cmd-tag ok">RESULT</span> The root cause is localized to a board fault.',
         nodes: ["CatService","TunnelFault","DeviceOffline","BoardFault"],
         links: ["业务类→隧道故障","隧道→单板根因","离线→单板根因"],
         text: '<b>诊断结果</b>对象状态更新后恢复三层推理并完成根因定位<br><span class="cmd-tag ok">RESULT</span> 最终定位为单板故障。' }
@@ -1788,12 +1813,89 @@ let storyOn = false, storyIdx = 0, activeCase = CASES[0];
 let diagnosisNodeHistory = new Set();  /* 记录推理过程中曾出现过的节点，用于剪枝弱化 */
 let diagnosisLinkHistory = new Set();  /* 记录推理过程中曾出现过的连线 */
 
+const STORY_COPY = {
+  '中': {
+    button: "案例演示", previous: "‹ 上一步", next: "下一步 ›", complete: "完成 ✓", exitDemo: "退出演示", exitOverview: "退出 ›",
+    overviewLabel: "全流程总览", overviewTitle: (count) => `${count}步排障流程完整路径`,
+    overviewIntro: "诊断流程已走完，以下为完整排障路径：", nodesInvolved: "涉及节点：",
+  },
+  EN: {
+    button: "Case demo", previous: "‹ Previous", next: "Next ›", complete: "View overview ›", exitDemo: "Exit demo", exitOverview: "Exit ›",
+    overviewLabel: "Full flow overview", overviewTitle: (count) => `Full ${count}-step troubleshooting path`,
+    overviewIntro: "Diagnosis is complete. Here is the full troubleshooting path:", nodesInvolved: "Nodes involved:",
+  },
+};
+const STORY_ACTIONS_EN = {
+  query_metric_window: "Query metric window",
+  diagnose_cross_domain: "Cross-domain diagnosis",
+  trace_forwarding_path: "Trace forwarding path",
+  request_vendor_diagnosis: "Request vendor diagnosis",
+  update_abox_state: "Update A-Box state",
+};
+function storyCopy() { return STORY_COPY[ontologyLanguage] || STORY_COPY['中']; }
+function storyValue(item, field) {
+  return ontologyLanguage === "EN" ? (item[`${field}En`] || item[field]) : item[field];
+}
+function updateStoryControls() {
+  const copy = storyCopy();
+  const steps = getSteps();
+  document.getElementById("s-prev").textContent = copy.previous;
+  document.getElementById("s-exit").textContent = copy.exitDemo;
+  document.getElementById("s-next").textContent = storyIdx === steps.length
+    ? copy.exitOverview
+    : storyIdx === steps.length - 1 ? copy.complete : copy.next;
+}
+function updateStoryStepCopy() {
+  const steps = getSteps();
+  const step = steps[storyIdx];
+  if (!step) return;
+  document.getElementById("s-step").textContent = `STEP ${storyIdx + 1}/${steps.length}`;
+  document.getElementById("s-title").textContent = storyValue(step, "title");
+  document.getElementById("s-action").textContent = ontologyLanguage === "EN"
+    ? (STORY_ACTIONS_EN[step.action] || step.action)
+    : step.action;
+  document.getElementById("s-text").innerHTML = storyValue(step, "text");
+  document.getElementById("s-dots").innerHTML = steps.map((_, index) => `<i class="${index === storyIdx ? "on" : ""}"></i>`).join("");
+  document.getElementById("s-prev").style.visibility = storyIdx === 0 ? "hidden" : "visible";
+  updateStoryControls();
+}
+function updateStoryOverviewCopy() {
+  const steps = getSteps();
+  const copy = storyCopy();
+  const allNodes = new Set(steps.flatMap((step) => step.nodes || []));
+  const stepLabels = steps.map((step) => storyValue(step, "title"));
+  const nodeNames = [...allNodes].map((id) => {
+    const node = nodeById[id];
+    return node ? `<b>${nodeDisplayText(node)}</b>` : id;
+  });
+  document.getElementById("s-step").textContent = copy.overviewLabel;
+  document.getElementById("s-title").textContent = copy.overviewTitle(steps.length);
+  document.getElementById("s-action").textContent = "";
+  document.getElementById("s-text").innerHTML =
+    `<span style="color:#2dd4a0;font-weight:700">${copy.overviewIntro}</span><br><br>` +
+    stepLabels.map((label, index) => `<span style="color:#7baabb">Step ${index + 1}</span> ${label}`).join(`<span style="color:rgba(255,255,255,.25)"> → </span>`) +
+    `<br><br><span style="color:#7baabb">${copy.nodesInvolved}</span>${nodeNames.join(" · ")}`;
+  document.getElementById("s-dots").innerHTML = steps.map(() => `<i class="on"></i>`).join("");
+  document.getElementById("s-prev").style.visibility = "visible";
+  updateStoryControls();
+}
+function refreshStoryLanguage() {
+  const storyButtonLabel = document.querySelector('#btn-story [data-i18n="story"]');
+  if (storyButtonLabel) storyButtonLabel.textContent = storyCopy().button;
+  renderCaseDropdown();
+  updateStoryControls();
+  if (storyOn) {
+    if (storyIdx === getSteps().length) updateStoryOverviewCopy();
+    else updateStoryStepCopy();
+  }
+}
+
 /* ---------- 渲染案例下拉菜单 ---------- */
 function renderCaseDropdown() {
   caseDropdown.innerHTML = CASES.map(c =>
     `<div class="case-item${c.id === activeCase.id ? " active" : ""}" data-case="${c.id}">
-       <span class="case-title">${c.title}</span>
-       <span class="case-desc">${c.desc}</span>
+       <span class="case-title">${storyValue(c, "title")}</span>
+       <span class="case-desc">${storyValue(c, "desc")}</span>
      </div>`
   ).join("");
   caseDropdown.querySelectorAll(".case-item").forEach(el => {
@@ -1843,13 +1945,7 @@ function storyStep(i) {
     return;
   }
   const s = steps[i];
-  document.getElementById("s-step").textContent = `STEP ${i + 1}/${steps.length}`;
-  document.getElementById("s-title").textContent = s.title;
-  document.getElementById("s-action").textContent = s.action;
-  document.getElementById("s-text").innerHTML = s.text;
-  document.getElementById("s-dots").innerHTML = steps.map((_, k) => `<i class="${k === i ? "on" : ""}"></i>`).join("");
-  document.getElementById("s-prev").style.visibility = i === 0 ? "hidden" : "visible";
-  document.getElementById("s-next").textContent = i === steps.length - 1 ? "完成 ✓" : "下一步 ›";
+  updateStoryStepCopy();
   highlightSet(s.nodes, s.links);
   const v = centroidView(s.nodes);
   tweenView({ target: v.target, radius: v.radius, theta: DEFAULT_VIEW.theta + 0.22 * i, phi: 1.12 }, 1200);
@@ -1861,11 +1957,9 @@ function showStoryOverview() {
   /* 汇总所有步骤的 nodes 和 links */
   const allNodes = new Set();
   const allLinks = new Set();
-  const stepLabels = [];
   for (const s of steps) {
     if (s.nodes) s.nodes.forEach(n => allNodes.add(n));
     if (s.links) s.links.forEach(l => allLinks.add(l));
-    stepLabels.push(s.title.replace(/^.+?：/, ""));
   }
   /* 高亮所有节点和连线 */
   highlightSet([...allNodes], [...allLinks]);
@@ -1874,21 +1968,7 @@ function showStoryOverview() {
     const n = nodeById[nid];
     if (n) n._mesh.material.emissiveIntensity = 0.55;
   }
-  /* 更新面板文字 */
-  document.getElementById("s-step").textContent = "全流程总览";
-  document.getElementById("s-title").textContent = `${steps.length}步排障流程完整路径`;
-  document.getElementById("s-action").textContent = "";
-  const nodeNames = [...allNodes].map(id => {
-    const n = nodeById[id];
-    return n ? `<b>${n.zh}</b>` : id;
-  });
-  document.getElementById("s-text").innerHTML =
-    `<span style="color:#2dd4a0;font-weight:700">诊断流程已走完，以下为完整排障路径：</span><br><br>` +
-    stepLabels.map((label, i) => `<span style="color:#7baabb">Step ${i + 1}</span> ${label}`).join(`<span style="color:rgba(255,255,255,.25)"> → </span>`) +
-    `<br><br><span style="color:#7baabb">涉及节点：</span>${nodeNames.join(" · ")}`;
-  document.getElementById("s-dots").innerHTML = steps.map(() => `<i class="on"></i>`).join("");
-  document.getElementById("s-prev").style.visibility = "visible";
-  document.getElementById("s-next").textContent = "退出 ›";
+  updateStoryOverviewCopy();
   /* 相机拉远，看全貌 */
   const v = centroidView([...allNodes]);
   tweenView({ target: v.target, radius: Math.max(v.radius * 0.82, 42), theta: DEFAULT_VIEW.theta, phi: DEFAULT_VIEW.phi + 0.03 }, 1400);
