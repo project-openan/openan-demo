@@ -14,9 +14,9 @@ export const CASE_EVENTS = {
   c1: {
     base: '02:18:05',
     events: [
-      { t: 146, type: '检索', from: 'WAIMO投诉处置智能体', to: '注册中心', summary: '检索命中：专线投诉处置智能体',
-        message: '## 检索请求\nagent.skill = 专线投诉诊断\n\n## 检索结果\n1. 专线投诉处置智能体（传输工作台）\n   - 技能：任务规划 / 并行调度 / 综合研判' },
-      { t: 155, type: 'Task-T', dir: 'request', from: 'WAIMO投诉处置智能体', to: '专线投诉处置智能体', summary: '进行集客专线业务投诉场景网络侧故障诊断，达成诊断目标，电路编号：广州-深圳GE1508KA/P。故障现象：专线中断。',
+      { t: 146, type: '检索', from: 'WAIMO投诉处理智能体', to: '注册中心', summary: '检索命中：专线投诉处理智能体',
+        message: '## 检索请求\nagent.skill = 专线投诉诊断\n\n## 检索结果\n1. 专线投诉处理智能体（传输工作台）\n   - 技能：任务规划 / 并行调度 / 综合研判' },
+      { t: 155, type: 'Task-T', dir: 'request', from: 'WAIMO投诉处理智能体', to: '专线投诉处理智能体', summary: '进行集客专线业务投诉场景网络侧故障诊断，达成诊断目标，电路编号：广州-深圳GE1508KA/P。故障现象：专线中断。',
         message: `{
     "message": {
         "messageId": "d87876d1-b4b4-477e-a561-662dca28b387",
@@ -51,9 +51,9 @@ Z端接入端口：24696-华泰证券万国数据-L-T-3-1-1-TPK1EX4S-4-ETH.2501-
     },
     "metadata": { }
 }` },
-      { t: 199, type: '检索', from: '专线投诉处置智能体', to: '注册中心', summary: '检索命中：粤东SPN网络内生智能、粤西SPN网络内生智能',
+      { t: 199, type: '检索', from: '专线投诉处理智能体', to: '注册中心', summary: '检索命中：粤东SPN网络内生智能、粤西SPN网络内生智能',
         message: '## 检索请求\nagent.skill = 专线故障定位·抢通\n\n## 检索结果\n1. 粤东SPN网络内生智能（专线故障定位·抢通）\n2. 粤西SPN网络内生智能（专线故障定位·抢通）' },
-      { t: 204, type: 'Task-T', dir: 'request', from: '专线投诉处置智能体', to: '粤西SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：P36169-YWHJ-棠溪村微网格业务汇聚机房1（990）-1-1-TPN1EM10F-10-ETH',
+      { t: 204, type: 'Task-T', dir: 'request', from: '专线投诉处理智能体', to: '粤西SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：P36169-YWHJ-棠溪村微网格业务汇聚机房1（990）-1-1-TPN1EM10F-10-ETH',
         message: `POST https://OMCIP:26335/a2a/json/message:stream
 Content-Type: application/json
 Authorization: Bearer token
@@ -89,7 +89,7 @@ A2A-Version: 1.0
     }
   }
 }` },
-      { t: 205, type: 'Task-T', dir: 'request', from: '专线投诉处置智能体', to: '粤东SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：24696-华泰证券万国数据-L-T-3-1-1-TPK1EX4S-4-ETH.2501-2502',
+      { t: 205, type: 'Task-T', dir: 'request', from: '专线投诉处理智能体', to: '粤东SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：24696-华泰证券万国数据-L-T-3-1-1-TPK1EX4S-4-ETH.2501-2502',
         message: `POST https://OMCIP:26335/a2a/json/message:stream
 Content-Type: application/json
 Authorization: Bearer token
@@ -125,7 +125,7 @@ A2A-Version: 1.0
     }
   }
 }` },
-      { t: 215, type: 'Negotiation-T', dir: 'request', from: '粤西SPN网络内生智能', to: '专线投诉处置智能体', summary: '接入端口名称不唯一，该端口下存在多个业务接入口，请提供具体的子接口ID或VLAN ID以确认唯一的业务',
+      { t: 215, type: 'Negotiation-T', dir: 'request', from: '粤西SPN网络内生智能', to: '专线投诉处理智能体', summary: '接入端口名称不唯一，该端口下存在多个业务接入口，请提供具体的子接口ID或VLAN ID以确认唯一的业务',
         message: `{
     "message": {
         "messageId": "ea1a3323-b108-417f-b827-ef0c5c1a8cb8",
@@ -149,7 +149,7 @@ A2A-Version: 1.0
         }
     }
 }` },
-      { t: 240, type: 'Negotiation-T', dir: 'response', from: '专线投诉处置智能体', to: '粤西SPN网络内生智能', summary: '接入端口名称：P36169-YWHJ-棠溪村微网格业务汇聚机房1（990）-1-1-TPN1EM10F-10-ETH (cvlan=1208)',
+      { t: 240, type: 'Negotiation-T', dir: 'response', from: '专线投诉处理智能体', to: '粤西SPN网络内生智能', summary: '接入端口名称：P36169-YWHJ-棠溪村微网格业务汇聚机房1（990）-1-1-TPN1EM10F-10-ETH (cvlan=1208)',
         message: `{
     "message": {
         "taskId": "ea1a3323-b108-417f-b827-ef0c5c1a8cb8",
@@ -167,7 +167,7 @@ A2A-Version: 1.0
         "messageId": "cdbc13b5-bd57-4c2b-b503-24e381b6c8dc"
     }
 }` },
-      { t: 260, type: 'Task-T', dir: 'response', from: '粤西SPN网络内生智能', to: '专线投诉处置智能体', summary: '诊断结果详情：P33206-YWHJ - 业务汇聚机房 1 (990) 的 12-TPJ1EM8F-4 端口收光无光，发光正常，原因是光纤中断。',
+      { t: 260, type: 'Task-T', dir: 'response', from: '粤西SPN网络内生智能', to: '专线投诉处理智能体', summary: '诊断结果详情：P33206-YWHJ - 业务汇聚机房 1 (990) 的 12-TPJ1EM8F-4 端口收光无光，发光正常，原因是光纤中断。',
         message: `data: {
     "artifactUpdate": {
         "taskId": "f179e921-7261-47f3-8ffb-0bda55f93b87",
@@ -187,7 +187,7 @@ A2A-Version: 1.0
         }
     }
 }` },
-      { t: 266, type: 'Task-T', dir: 'response', from: '粤东SPN网络内生智能', to: '专线投诉处置智能体', summary: '诊断结果详情：未发现故障。',
+      { t: 266, type: 'Task-T', dir: 'response', from: '粤东SPN网络内生智能', to: '专线投诉处理智能体', summary: '诊断结果详情：未发现故障。',
         message: `data: {
     "artifactUpdate": {
         "taskId": "f179e921-7261-47f3-8ffb-0bda55f93b87",
@@ -207,7 +207,7 @@ A2A-Version: 1.0
         }
     }
 }` },
-      { t: 278, type: 'Task-T', dir: 'response', from: '专线投诉处置智能体', to: 'WAIMO投诉处置智能体', summary: '跨城故障协同诊断汇总结果：粤西SPN网络内生智能 33206-YWHJ - 业务汇聚机房 1 (990) 的 12-TPJ1EM8F-4 端口收光无光，发光正常，原因是光纤中断。',
+      { t: 278, type: 'Task-T', dir: 'response', from: '专线投诉处理智能体', to: 'WAIMO投诉处理智能体', summary: '跨城故障协同诊断汇总结果：粤西SPN网络内生智能 33206-YWHJ - 业务汇聚机房 1 (990) 的 12-TPJ1EM8F-4 端口收光无光，发光正常，原因是光纤中断。',
         message: `data: {
     "artifactUpdate": {
         "taskId": "f179e921-7261-47f3-8ffb-0bda55f93b87",
@@ -232,9 +232,9 @@ A2A-Version: 1.0
   c2: {
     base: '10:20:08',
     events: [
-      { t: 69, type: '检索', from: 'WAIMO投诉处置智能体', to: '注册中心', summary: '检索命中：专线投诉处置智能体',
-        message: '## 检索请求\nagent.skill = 专线投诉诊断\n\n## 检索结果\n1. 专线投诉处置智能体（传输工作台）\n   - 技能：任务规划 / 并行调度 / 综合研判' },
-      { t: 74, type: 'Task-T', dir: 'request', from: 'WAIMO投诉处置智能体', to: '专线投诉处置智能体', summary: '进行集客专线业务投诉场景网络侧故障诊断，达成诊断目标，电路编号：广州-汕头FE2100KA/P。故障现象：专线质差。',
+      { t: 69, type: '检索', from: 'WAIMO投诉处理智能体', to: '注册中心', summary: '检索命中：专线投诉处理智能体',
+        message: '## 检索请求\nagent.skill = 专线投诉诊断\n\n## 检索结果\n1. 专线投诉处理智能体（传输工作台）\n   - 技能：任务规划 / 并行调度 / 综合研判' },
+      { t: 74, type: 'Task-T', dir: 'request', from: 'WAIMO投诉处理智能体', to: '专线投诉处理智能体', summary: '进行集客专线业务投诉场景网络侧故障诊断，达成诊断目标，电路编号：广州-汕头FE2100KA/P。故障现象：专线质差。',
         message: `{
     "message": {
         "messageId": "d87876d1-b4b4-477e-a561-662dca28b387",
@@ -269,9 +269,9 @@ Z端接入端口：21722-汕头潮阳关埠加油站-1-4-TND1EF8T-1-ETH.3532。
     },
     "metadata": { }
 }` },
-      { t: 89, type: '检索', from: '专线投诉处置智能体', to: '注册中心', summary: '检索命中：粤东SPN网络内生智能、粤西SPN网络内生智能',
+      { t: 89, type: '检索', from: '专线投诉处理智能体', to: '注册中心', summary: '检索命中：粤东SPN网络内生智能、粤西SPN网络内生智能',
         message: '## 检索请求\nagent.skill = 专线故障定位·抢通\n\n## 检索结果\n1. 粤东SPN网络内生智能（专线故障定位·抢通）\n2. 粤西SPN网络内生智能（专线故障定位·抢通）' },
-      { t: 95, type: 'Task-T', dir: 'request', from: '专线投诉处置智能体', to: '粤东SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：21722-汕头潮阳关埠加油站-1-4-TND1EF8T-1-ETH.3532',
+      { t: 95, type: 'Task-T', dir: 'request', from: '专线投诉处理智能体', to: '粤东SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：21722-汕头潮阳关埠加油站-1-4-TND1EF8T-1-ETH.3532',
         message: `POST https://OMCIP:26335/a2a/json/message:stream
 Content-Type: application/json
 Authorization: Bearer token
@@ -307,7 +307,7 @@ A2A-Version: 1.0
     }
   }
 }` },
-      { t: 96, type: 'Task-T', dir: 'request', from: '专线投诉处置智能体', to: '粤西SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：P1310-中石油（黄埔大道中路-风光路）-VIP-JK-3A-1-1-TN81EG8E-1-ETH.409',
+      { t: 96, type: 'Task-T', dir: 'request', from: '专线投诉处理智能体', to: '粤西SPN网络内生智能', summary: '对网络侧故障进行诊断，返回故障根因和修复建议等诊断结果信息。接入端口名称：P1310-中石油（黄埔大道中路-风光路）-VIP-JK-3A-1-1-TN81EG8E-1-ETH.409',
         message: `POST https://OMCIP:26335/a2a/json/message:stream
 Content-Type: application/json
 Authorization: Bearer token
@@ -343,7 +343,7 @@ A2A-Version: 1.0
     }
   }
 }` },
-      { t: 106, type: 'Task-T', dir: 'response', from: '粤西SPN网络内生智能', to: '专线投诉处置智能体', summary: '检测到链路存在光路隐患，建议下发调优',
+      { t: 106, type: 'Task-T', dir: 'response', from: '粤西SPN网络内生智能', to: '专线投诉处理智能体', summary: '检测到链路存在光路隐患，建议下发调优',
         message: `data: {
     "artifactUpdate": {
         "taskId": "3a433236-5cc7-441c-b05d-68ae27fd70f2",
@@ -372,7 +372,7 @@ P45053-HW-PTN980B收光方向0.309km处存在纤损
         }
     }
 }` },
-      { t: 109, type: 'Notification-T', from: '粤西SPN网络内生智能', to: '专线投诉处置智能体', summary: '抢通方案上报',
+      { t: 109, type: 'Notification-T', from: '粤西SPN网络内生智能', to: '专线投诉处理智能体', summary: '抢通方案上报',
         message: `data: {
     "artifactUpdate": {
         "taskId": "3a433236-5cc7-441c-b05d-68ae27fd70f2",
@@ -414,12 +414,12 @@ P45053-HW-PTN980B收光方向0.309km处存在纤损
         }
     }
 }` },
-      { t: 112, type: 'Task-T', dir: 'response', from: '粤东SPN网络内生智能', to: '专线投诉处置智能体', summary: '诊断结果未发现业务质差',
+      { t: 112, type: 'Task-T', dir: 'response', from: '粤东SPN网络内生智能', to: '专线投诉处理智能体', summary: '诊断结果未发现业务质差',
         message: `data: {"artifactUpdate": {"taskId": "a9848066-22cb-413d-9431-6aa42bb6cd6e","contextId": "b9991460-10a2-4c90-ae6d-82bedac1ebcd","artifact": {"artifactId": "73180402-f4cb-424d-8a2e-cc88ab21a4bc","name": "private-line-service-complain-diagnosis","parts": [{"text": "业务投诉诊断任务诊断结果消息","metadata": {}}],"metadata": {"https://projects.tmforum.org/a2aproject/telecommunication/extensions/Task-T/v1": "
 1. 诊断结果：成功
 2. 诊断结果详情：未诊断到业务质差，请人工接管
 3. 修复建议：未诊断到业务质差，请人工接管"}},"metadata": {}}}` },
-      { t: 119, type: 'Task-T', dir: 'response', from: '专线投诉处置智能体', to: 'WAIMO投诉处置智能体', summary: '跨城故障协同诊断汇总结果：粤西SPN网络内生智能端口收光弱光，发光正常，原因是光纤整体损耗大。',
+      { t: 119, type: 'Task-T', dir: 'response', from: '专线投诉处理智能体', to: 'WAIMO投诉处理智能体', summary: '跨城故障协同诊断汇总结果：粤西SPN网络内生智能端口收光弱光，发光正常，原因是光纤整体损耗大。',
         message: `data: {
     "artifactUpdate": {
         "taskId": "3a433236-5cc7-441c-b05d-68ae27fd70f2",
@@ -445,7 +445,7 @@ P45053-HW-PTN980B收光方向0.309km处存在纤损
         }
     }
 }` },
-      { t: 141, type: 'Notification-T', from: '粤西SPN网络内生智能', to: '专线投诉处置智能体', summary: '业务抢通执行成功',
+      { t: 141, type: 'Notification-T', from: '粤西SPN网络内生智能', to: '专线投诉处理智能体', summary: '业务抢通执行成功',
         message: `data: {
     "artifactUpdate": {
         "taskId": "3a433236-5cc7-441c-b05d-68ae27fd70f2",
@@ -489,7 +489,7 @@ P45053-HW-PTN980B收光方向0.309km处存在纤损
         }
     }
 }` },
-      { t: 160, type: 'Notification-T', from: '专线投诉处置智能体', to: 'WAIMO投诉处置智能体', summary: '专线业务已经完成抢通修复，经过验证业务的SLA已经恢复正常。',
+      { t: 160, type: 'Notification-T', from: '专线投诉处理智能体', to: 'WAIMO投诉处理智能体', summary: '专线业务已经完成抢通修复，经过验证业务的SLA已经恢复正常。',
         message: `data: {
     "artifactUpdate": {
         "taskId": "3a433236-5cc7-441c-b05d-68ae27fd70f2",

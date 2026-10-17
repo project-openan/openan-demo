@@ -8,6 +8,49 @@ import { remapPathEnds } from '../roles';
 
 const MARKER = 'st-chev';
 
+// V5.42（用户规格）：专线→粤东/粤西 任务线（zx-yd-task / zx-yx-task）肘部 45° 直角倒角
+// （L 段）改圆弧——控制点=转角点、起/末取原倒角端点（切向连续），与检索/协商线圆角
+// 肘弯一致；paths.js 为 codegen 产物勿手改，此处模块加载时运行时替换（d/dOn/dGrow
+// 含倒角的全变体；替换幂等，ConnectionFlow（彗星）共用同一 FLOWS 实例同步生效）
+const ARCIFY = {
+  'zx-yd-task': [/L1307\.5 372\.5/g, 'Q1298 372.5 1307.5 372.5'],
+  'zx-yx-task': [/L1307\.5 738\.5/g, 'Q1298 738.5 1307.5 738.5'],
+};
+for (const [k, [re, arc]] of Object.entries(ARCIFY)) {
+  const f = FLOWS[k];
+  if (!f) continue;
+  for (const fld of ['d', 'dOn', 'dGrow']) {
+    if (f[fld]) f[fld] = f[fld].replace(re, arc);
+  }
+}
+
+// V5.55/V5.56（用户规格）：卡尺寸变更——连线端点运行时替换（paths.js 为 codegen 勿手改，
+// 模块加载时一次性替换到当前终值；替换幂等，ConnectionFlow（彗星）共用同一 FLOWS 实例）：
+//   V5.55 四卡增高 10 → zx-yx-task 起点 (1298,694) 贴 ZX 卡底 → 704（ZX 不变保留）
+//   V5.56 YD 卡高 240（底 502） → zx-yd-neg 起点自 YD 卡底 (1713.5,524) → 502（整条 -22）
+//   V5.56 WAIMO 卡加宽 32（右缘 971） → waimo-zx-task 起点 M939→M971（线缩短 32）、
+//     waimo-zx-notif 终点 H941→H973（其余连线均贴卡左缘/卡顶，端点不变）
+const CARD_PATCH_D = {
+  'zx-yx-task': [/M1298 694/g, 'M1298 704'],
+  'zx-yd-neg': [/M1713\.5 514V517Q1713\.5 529 1701\.5 529/g, 'M1713.5 502V505Q1713.5 517 1701.5 517'],
+  'waimo-zx-task': [/M939 545\.5/g, 'M971 545.5'],
+  'waimo-zx-notif': [/H941/g, 'H973'],
+};
+for (const [k, [re, to]] of Object.entries(CARD_PATCH_D)) {
+  const f = FLOWS[k];
+  if (!f) continue;
+  for (const fld of ['d', 'dOn', 'dDim', 'dGrow', 'dDimGrow']) {
+    if (f[fld]) f[fld] = f[fld].replace(re, to);
+  }
+}
+
+// V5.57（用户规格）：检索连线颜色 #2CB8C9（原 #715AFB；箭头 marker 随色）、
+// 描边宽 0.07rem（1.12，其余连线 1.5 不变）
+for (const k of ['reg-waimo-search', 'reg-zx-search']) {
+  if (FLOWS[k]) FLOWS[k].color = '#2CB8C9';
+}
+const SEARCH_KEYS = { 'reg-waimo-search': true, 'reg-zx-search': true };
+
 // 快照+收起态伪 world：设计连线 sprite 已隐藏（位图无法随集群端点重适配），
 // 以「全部登场、全部连线可见」由 SVG 连线接管呈现
 export function snapshotLinesWorld() {
@@ -72,7 +115,7 @@ export default function ConnectionLines({ world, pub }) {
   if (!seen.length) return null;
   const colors = [...new Set(seen.map((k) => FLOWS[k].color))];
   return (
-    <svg className="st-clines" viewBox="0 0 1920 1080" width="1920" height="1080" aria-hidden="true">
+    <svg className="st-clines" viewBox="0 0 1920 1080" style={{ width: '120rem', height: '67.5rem' }} aria-hidden="true">
       <defs>
         {colors.map((c) => (
           <marker key={c} id={MARKER + c.replace('#', '')} viewBox="0 0 9 9"
@@ -94,7 +137,7 @@ export default function ConnectionLines({ world, pub }) {
         return (
           <g key={key} data-key={key}>
             {dim ? <path d={dim} fill="none" stroke={f.color} strokeWidth={1.5} strokeOpacity={0.8} /> : null}
-            <path d={on} fill="none" stroke={f.color} strokeWidth={1.5} strokeLinecap="round"
+            <path d={on} fill="none" stroke={f.color} strokeWidth={SEARCH_KEYS[key] ? 1.12 : 1.5} strokeLinecap="round"
               markerStart={f.arrow === 'start' ? m : undefined}
               markerEnd={f.arrow === 'end' ? m : undefined} />
           </g>

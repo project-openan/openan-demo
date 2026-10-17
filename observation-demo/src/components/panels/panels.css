@@ -9,13 +9,13 @@
 
 .glass-panel {
   position: relative;
-  border-radius: 8px;
+  border-radius: 0.5rem;
   background:
     linear-gradient(180deg, rgba(103, 103, 103, 0.05) 0%, rgba(245, 245, 245, 0) 55%),
     rgba(0, 0, 0, 0.4);
-  -webkit-backdrop-filter: blur(27px);
-  backdrop-filter: blur(27px);
-  box-shadow: 0 16px 48px rgba(0, 0, 0, 0.5);
+  -webkit-backdrop-filter: blur(1.6875rem);
+  backdrop-filter: blur(1.6875rem);
+  box-shadow: 0 1.0rem 3.0rem rgba(0, 0, 0, 0.5);
   /* V3.12：文字可选中——覆盖层 .st-zoomwrap/.st-zoomz 为 pointer-events:none（不拦截下层画布
      交互），在面板根恢复鼠标事件 + user-select 继承到全部文字（同协商面板 .st-neglayer 模式） */
   pointer-events: auto;
@@ -23,13 +23,13 @@
   -webkit-user-select: text;
 }
 
-.p-title-bar { position: absolute; width: 2px; height: 16px; border-radius: 2px; background: #dfdfdf; }
+.p-title-bar { position: absolute; width: 0.125rem; height: 1.0rem; border-radius: 0.125rem; background: #dfdfdf; }
 .p-title-text {
   position: absolute;
-  height: 22px;
-  line-height: 22px;
+  height: 1.375rem;
+  line-height: 1.375rem;
   font-family: var(--font-yh);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #eee;
   white-space: nowrap;
@@ -40,45 +40,45 @@
   -webkit-background-clip: text;
   background-clip: text;
 }
-.p-subtitle { position: absolute; font-size: 12px; line-height: 20px; color: #fff; white-space: nowrap; }
+.p-subtitle { position: absolute; font-size: 0.75rem; line-height: 1.25rem; color: #fff; white-space: nowrap; }
 
 .p-card {
   position: absolute;
   background: rgba(174, 174, 174, 0.2);
-  border-radius: 4px;
-  box-shadow: 0 1px 6px rgba(0, 0, 0, 0.08);
+  border-radius: 0.25rem;
+  box-shadow: 0 0.0625rem 0.375rem rgba(0, 0, 0, 0.08);
 }
 
 .p-tag-text {
   position: absolute;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   color: #fff;
-  line-height: 20px;
+  line-height: 1.25rem;
   white-space: nowrap;
 }
 
-.radio-group { position: absolute; background: rgba(102, 140, 247, 0.15); border-radius: 6px; }
+.radio-group { position: absolute; background: rgba(102, 140, 247, 0.15); border-radius: 0.375rem; }
 .radio-option {
   position: absolute;
   display: flex;
   align-items: center;
-  border-radius: 4px;
-  font-size: 12px;
+  border-radius: 0.25rem;
+  font-size: 0.75rem;
   color: #c9c9c9;
   white-space: nowrap;
   /* V3.22：选中态过渡（plain→glass 边框/文字色渐变）+ 层叠上下文承托 ::after 垫层 */
   z-index: 0;
   transition: border-color 0.3s ease, color 0.3s ease;
 }
-.radio-option--plain { border: 1px solid rgba(243, 243, 243, 0.15); }
+.radio-option--plain { border: 0.0625rem solid rgba(243, 243, 243, 0.15); }
 /* V3.22：玻璃高亮渐变移至 ::after 垫层（z-index:-1 垫于文字下、组底色上），
    透明度过渡实现选中渐显；末态与原 --glass 版式一致 */
 .radio-option::after {
   content: "";
   position: absolute;
   inset: 0;
-  border-radius: 4px;
+  border-radius: 0.25rem;
   background:
     radial-gradient(130% 160% at 28% 12%, rgba(145, 199, 255, 0.27) 0%, rgba(92, 172, 255, 0) 58%),
     linear-gradient(180deg, rgba(92, 172, 255, 0.24) 0%, rgba(92, 172, 255, 0) 92%);
@@ -87,26 +87,26 @@
   pointer-events: none;
   z-index: -1;
 }
-.radio-option--glass { border: 1px solid #5cacff; color: #fff; }
+.radio-option--glass { border: 0.0625rem solid #5cacff; color: #fff; }
 .radio-option--glass::after { opacity: 1; }
 
 .p-node-btn {
   position: absolute;
   display: flex;
   align-items: center;
-  padding: 0 8px;
-  height: 24px;
-  border-radius: 4px;
+  padding: 0 0.5rem;
+  height: 1.5rem;
+  border-radius: 0.25rem;
   background: rgba(102, 140, 247, 0.15);
-  border: 1px solid #2070f3;
+  border: 0.0625rem solid #2070f3;
   color: #fff;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
   white-space: nowrap;
 }
 
-.p-body-text { position: absolute; font-size: 12px; line-height: 20px; color: #fff; white-space: nowrap; }
-.p-mini-label { position: absolute; font-size: 10px; line-height: 10px; white-space: nowrap; }
+.p-body-text { position: absolute; font-size: 0.75rem; line-height: 1.25rem; color: #fff; white-space: nowrap; }
+.p-mini-label { position: absolute; font-size: 0.625rem; line-height: 0.625rem; white-space: nowrap; }
 
 /* 编排引擎 */
 .glow-arrow-img {
@@ -116,49 +116,49 @@
   0%, 100% { opacity: 0.7; }
   50% { opacity: 1; }
 }
-.p-engine-name { position: absolute; width: 40px; text-align: center; font-size: 10px; line-height: 18px; color: #fff; }
+.p-engine-name { position: absolute; width: 2.5rem; text-align: center; font-size: 0.625rem; line-height: 1.125rem; color: #fff; }
 
 /* ============ 意图识别面板专属 ============ */
 .p-pill {
   position: absolute;
-  height: 24px;
+  height: 1.5rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
-  border: 1.5px solid transparent;
+  border-radius: 62.4375rem;
+  border: 0.09375rem solid transparent;
   background:
     linear-gradient(#283728, #283728) padding-box,
     linear-gradient(180deg, rgba(56, 253, 107, 0.2), #54f79c 50%, rgba(110, 247, 167, 0.2)) border-box;
-  box-shadow: 0 6px 6px rgba(0, 0, 0, 0.35);
+  box-shadow: 0 0.375rem 0.375rem rgba(0, 0, 0, 0.35);
   color: #fff;
-  font-size: 12px;
+  font-size: 0.75rem;
   font-weight: 500;
   white-space: nowrap;
 }
-.p-pill-caption { position: absolute; font-size: 10px; line-height: 14px; color: #c9c9c9; }
+.p-pill-caption { position: absolute; font-size: 0.625rem; line-height: 0.875rem; color: #c9c9c9; }
 
-.p-io-title { position: absolute; font-size: 12px; line-height: 20px; font-weight: 700; color: #fff; white-space: nowrap; }
-.p-io-list { position: absolute; margin: 0; padding: 0; list-style: none; font-size: 10px; line-height: 14px; color: #fff; }
-.p-io-list li { position: relative; padding-left: 10px; }
+.p-io-title { position: absolute; font-size: 0.75rem; line-height: 1.25rem; font-weight: 700; color: #fff; white-space: nowrap; }
+.p-io-list { position: absolute; margin: 0; padding: 0; list-style: none; font-size: 0.625rem; line-height: 0.875rem; color: #fff; }
+.p-io-list li { position: relative; padding-left: 0.625rem; }
 .p-io-list li::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 4px;
-  width: 5px;
-  height: 5px;
+  top: 0.25rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
   border-radius: 50%;
   background: #fff;
 }
-.p-io-sub { position: absolute; padding-left: 10px; font-size: 10px; line-height: 14px; color: #fff; white-space: nowrap; }
+.p-io-sub { position: absolute; padding-left: 0.625rem; font-size: 0.625rem; line-height: 0.875rem; color: #fff; white-space: nowrap; }
 .p-io-sub::before {
   content: "";
   position: absolute;
   left: 0;
-  top: 4px;
-  width: 5px;
-  height: 5px;
+  top: 0.25rem;
+  width: 0.3125rem;
+  height: 0.3125rem;
   border-radius: 50%;
   background: #fff;
 }
@@ -166,17 +166,17 @@
 /* 发光球体（LLM React Agent） */
 .orb-label {
   position: absolute;
-  width: 80px;
+  width: 5.0rem;
   text-align: center;
   font-family: var(--font-yh);
-  font-size: 10px;
+  font-size: 0.625rem;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
 }
 
 /* ============ 调度处置面板（V3.1-调度处置-标注 · 容器 1111303 360×208） ============ */
-.tdialog { border-radius: 4px; }
+.tdialog { border-radius: 0.25rem; }
 
 .disp-conn {
   position: absolute;
@@ -184,62 +184,66 @@
 }
 .disp-msg {
   position: absolute;
-  left: 16px;
-  top: 46px;
-  width: 168px;
-  height: 96px;
-  padding: 16px;
+  left: 1.0rem;
+  top: 2.875rem;
+  width: 10.5rem;
+  /* V5.43（用户规格）：文字距气泡边沿 1rem（上下左右）；高度随文字折行自适应
+     （原固定 6rem，文字 6 行溢出气泡底）；文字从 padding 起排（原 justify-center 非边距驱动） */
+  height: auto;
+  padding: 1.0rem;
   box-sizing: border-box;
   background: #595959;
-  border-radius: 0 8px 8px 8px;
+  border-radius: 0 0.5rem 0.5rem 0.5rem;
   display: flex;
   flex-direction: column;
-  justify-content: center;
-  font-size: 12px;
-  line-height: 16px;
+  justify-content: flex-start;
+  font-size: 0.75rem;
+  line-height: 1.0rem;
   color: #fff;
   text-align: left;
 }
 .disp-phone {
   position: absolute;
-  left: 199px;
-  top: 28px;
-  width: 73px;
-  height: 170px;
+  left: 12.4375rem;
+  top: 1.75rem;
+  width: 4.5625rem;
+  height: 10.625rem;
   user-select: none;
   -webkit-user-drag: none;
 }
 .disp-reply {
   position: absolute;
-  left: 288px;
-  top: 86px;
-  width: 56px;
-  height: 40px;
-  padding: 12px 0 0 16px;
+  left: 18.0rem;
+  top: 5.375rem;
+  width: 3.5rem;
+  /* V5.43（用户规格）：文字距气泡边沿 1rem（上下左右；原 0.75rem 0 0 1.0rem）、高 3rem=16+16+16 */
+  height: 3.0rem;
+  padding: 1.0rem;
   box-sizing: border-box;
   background: rgba(0, 103, 209, 0.7);
-  border-radius: 8px 0 8px 8px;
-  font-size: 12px;
-  line-height: 16px;
+  border-radius: 0.5rem 0 0.5rem 0.5rem;
+  font-size: 0.75rem;
+  line-height: 1.0rem;
   color: #fff;
 }
 
 /* ============ 能开平台节点卡片 ============ */
+/* V5.57（用户规格）：平台卡下边沿距注册中心子卡 0.75rem（子卡底 114+12）——高 8.875→7.875rem */
 .platform-card {
   position: relative;
-  width: 144px;
-  height: 142px;
+  width: 9.0rem;
+  height: 7.875rem;
   background: rgba(44, 184, 201, 0.4);
-  border: 1px solid #2cb8c9;
-  border-radius: 8px;
+  border: 0.0625rem solid #2cb8c9;
+  border-radius: 0.5rem;
 }
 .platform-card__name {
   position: absolute;
-  width: 56px;
-  height: 22px;
-  line-height: 22px;
+  width: 3.5rem;
+  height: 1.375rem;
+  line-height: 1.375rem;
   font-family: var(--font-yh);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -247,16 +251,16 @@
 .platform-card__sub {
   position: absolute;
   background: rgba(168, 159, 249, 0.4);
-  border: 1px solid #715afb;
-  border-radius: 8px;
+  border: 0.0625rem solid #715afb;
+  border-radius: 0.5rem;
 }
 .platform-card__subname {
   position: absolute;
-  width: 56px;
-  height: 22px;
-  line-height: 22px;
+  width: 3.5rem;
+  height: 1.375rem;
+  line-height: 1.375rem;
   font-family: var(--font-yh);
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 700;
   color: #fff;
   white-space: nowrap;
@@ -275,12 +279,12 @@
 /* ============ 面板浮现动画（外层定位/内层动画分离，避免 transform 冲突） ============ */
 .st-panel-in { animation: stPanelIn 0.3s ease-out; }
 @keyframes stPanelIn {
-  from { opacity: 0; transform: translateY(6px); }
+  from { opacity: 0; transform: translateY(0.375rem); }
   to { opacity: 1; transform: none; }
 }
 
 /* ============ XX-T 详细交互流程弹窗（V3.13 源自 react-panels：Task-T/Notification-T/Authorization-T） ============ */
-.tdialog { border-radius: 4px; }
+.tdialog { border-radius: 0.25rem; }
 
 /* 渐变标题：仅透明裁切，渐变由组件内联指定（区别于 .p-title-text--gradient 的固定渐变） */
 .p-title-text--grad {
@@ -293,7 +297,7 @@
 .td-scroll {
   position: absolute;
   left: 0;
-  top: 41px;
+  top: 2.5625rem;
   right: 0;
   bottom: 0;
   overflow-y: auto;
@@ -301,10 +305,10 @@
   scrollbar-width: thin;
   scrollbar-color: rgba(243, 243, 243, 0.28) transparent;
 }
-.td-scroll::-webkit-scrollbar { width: 6px; }
+.td-scroll::-webkit-scrollbar { width: 0.375rem; }
 .td-scroll::-webkit-scrollbar-track { background: transparent; }
 .td-scroll::-webkit-scrollbar-thumb {
-  border-radius: 3px;
+  border-radius: 0.1875rem;
   background: linear-gradient(180deg, rgba(243, 243, 243, 0.28), rgba(243, 243, 243, 0.1));
 }
 
@@ -314,9 +318,9 @@
   position: absolute;
   inset: 0;
   background: rgba(8, 14, 96, 0.5);
-  -webkit-backdrop-filter: blur(11px);
-  backdrop-filter: blur(11px);
-  filter: drop-shadow(0 2px 5px rgba(0, 0, 0, 0.2));
+  -webkit-backdrop-filter: blur(0.6875rem);
+  backdrop-filter: blur(0.6875rem);
+  filter: drop-shadow(0 0.125rem 0.3125rem rgba(0, 0, 0, 0.2));
 }
 .td-bubble__outline {
   position: absolute;
@@ -329,41 +333,41 @@
 /* Task-T */
 .td-hline {
   position: absolute;
-  height: 2px;
-  border-radius: 2px;
+  height: 0.125rem;
+  border-radius: 0.125rem;
   background: linear-gradient(90deg, rgba(150, 192, 247, 0), rgba(150, 192, 247, 0.5) 50%, rgba(150, 192, 247, 0));
 }
 .td-dot {
   position: absolute;
-  width: 8px;
-  height: 8px;
-  border: 1px solid #979797;
+  width: 0.5rem;
+  height: 0.5rem;
+  border: 0.0625rem solid #979797;
   border-radius: 50%;
   box-sizing: border-box;
 }
 .td-dash {
   position: absolute;
   width: 0;
-  border-left: 1px dashed rgba(151, 151, 151, 0.63);
+  border-left: 0.0625rem dashed rgba(151, 151, 151, 0.63);
 }
-.td-card { position: relative; border-radius: 8px; background: rgba(102, 140, 247, 0.15); }
-.td-card__label { position: absolute; font-size: 12px; line-height: 20px; color: #939393; white-space: nowrap; }
-.td-card__value { position: absolute; font-size: 12px; line-height: 20px; color: #fff; }
+.td-card { position: relative; border-radius: 0.5rem; background: rgba(102, 140, 247, 0.15); }
+.td-card__label { position: absolute; font-size: 0.75rem; line-height: 1.25rem; color: #939393; white-space: nowrap; }
+.td-card__value { position: absolute; font-size: 0.75rem; line-height: 1.25rem; color: #fff; }
 
 /* Authorization-T */
 .auth-pill {
   position: absolute;
-  width: 88px;
-  height: 28px;
+  width: 5.5rem;
+  height: 1.75rem;
   display: flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: 62.4375rem;
   background: rgba(102, 140, 247, 0.15);
-  border: 1px solid #2070f3;
+  border: 0.0625rem solid #2070f3;
   color: #fff;
-  font-size: 12px;
-  line-height: 20px;
+  font-size: 0.75rem;
+  line-height: 1.25rem;
   white-space: nowrap;
 }
 .auth-pill--gray { background: rgba(174, 174, 174, 0.15); border-color: #777777; color: #aeaeae; }
@@ -384,34 +388,34 @@
    头部条内部横向色调 0.25、渐变尾端全透明（90deg / -90deg） */
 .notif-card {
   position: absolute;
-  width: 136px;
-  height: 120px;
-  border-radius: 6px;
+  width: 8.5rem;
+  height: 7.5rem;
+  border-radius: 0.375rem;
 }
-.notif-card--red { border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(238, 105, 111, 0.01); background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)); }
-.notif-card--green { border: 1px solid rgba(255, 255, 255, 0.1); background-color: rgba(54, 193, 141, 0.01); background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)); }
-.notif-card__head { position: absolute; left: 0; top: 0; width: 136px; height: 28px; border-radius: 6.4px 6.4px 0 0; }
+.notif-card--red { border: 0.0625rem solid rgba(255, 255, 255, 0.1); background-color: rgba(238, 105, 111, 0.01); background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)); }
+.notif-card--green { border: 0.0625rem solid rgba(255, 255, 255, 0.1); background-color: rgba(54, 193, 141, 0.01); background-image: linear-gradient(rgba(255, 255, 255, 0.05), rgba(255, 255, 255, 0.05)); }
+.notif-card__head { position: absolute; left: 0; top: 0; width: 8.5rem; height: 1.75rem; border-radius: 0.4rem 0.4rem 0 0; }
 .notif-card__head--red { background: linear-gradient(90deg, #ee696f40 0%, #ee696f00 100%); }
 .notif-card__head--green { background: linear-gradient(-90deg, #36c18d40 0%, #36c18d00 100%); }
 .notif-card__title {
   position: absolute;
   left: 0;
-  top: 4px;
-  width: 136px;
+  top: 0.25rem;
+  width: 8.5rem;
   text-align: center;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
-  line-height: 22px;
+  line-height: 1.375rem;
   white-space: nowrap;
 }
-.notif-label { position: absolute; left: 16px; font-size: 12px; line-height: 20px; color: #c9c9c9; white-space: nowrap; }
-.notif-value { position: absolute; left: 68px; font-size: 12px; line-height: 20px; white-space: nowrap; }
+.notif-label { position: absolute; left: 1.0rem; font-size: 0.75rem; line-height: 1.25rem; color: #c9c9c9; white-space: nowrap; }
+.notif-value { position: absolute; left: 4.25rem; font-size: 0.75rem; line-height: 1.25rem; white-space: nowrap; }
 
 /* V3.21 投诉识别面板：分步渐入（visibility 随延迟翻转——隐藏期不参与命中/选中） */
 .ir-reveal {
   opacity: 0;
   visibility: hidden;
-  transform: translateY(8px);
+  transform: translateY(0.5rem);
   transition: opacity 0.5s ease, transform 0.5s ease, visibility 0s 0.5s;
 }
 .ir-reveal.ir-on {
@@ -423,7 +427,7 @@
 
 /* V3.21 光轮外圈白色箭头：绕光轮中心（85.31, 83.75，与 orb.svg 外环圆心一致）顺时针旋转 */
 .orb-arrows {
-  transform-origin: 85.31px 83.75px;
+  transform-origin: 5.331875rem 5.234375rem;
   animation: orb-spin 10s linear infinite;
 }
 @keyframes orb-spin {

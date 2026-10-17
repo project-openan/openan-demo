@@ -112,17 +112,17 @@ export const authorizationWindowOf = (c) => {
   return { t0: wf.t1, t1: w1.t0 };
 };
 
-// V3.30：调度处置面板窗口——WAIMO mini2（调度处置）激活起，mini2 仅 4/3 业务秒，
-// 延展窗口保三段分步节奏可读；
+// V3.30：调度处置面板窗口——WAIMO mini2（调度处置）激活起；
 // V4：①案例二 WAIMO 无调度处置子步骤（槽位空缺留白）——窗口置零即面板不挂载；
-// ②案例一无 Notification-T 面板、亦无 ZX 修复验证子步骤（修复验证并入投诉闭环）——
-// 窗口延展至 mini2 后 40 业务秒（现场上站修复驻留期）
+// ②案例一无 Notification-T 面板、亦无 ZX 修复验证子步骤（修复验证并入投诉闭环）
 export const dispatchWindowOf = (c) => {
   const w = miniWindowOf(c, 'WAIMO', 2);
   if (!w.t0 && !w.t1) return { t0: 0, t1: 0 };
   const nw = notifWindowOf(c);
   if (nw.t1 > 0) return { t0: w.t0, t1: Math.max(w.t0, nw.t0) };
-  return { t0: w.t0, t1: w.t1 + 40 };
+  // V5.54（用户规格）：mini2（调度处置）窗口扩至面板消失（421..473，原 done 433+40 延展
+  // 废止）——loading 动效持续到面板退场（窗口 = mini2 全窗，两端同拍）
+  return { t0: w.t0, t1: w.t1 };
 };
 
 // V3.31→V5.2：意图识别面板窗口 = mini0（投诉识别）全窗——5 段渐入且每段 ≥12 业务秒，

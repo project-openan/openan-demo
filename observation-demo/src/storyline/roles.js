@@ -143,6 +143,73 @@ const CHEV_CLIP = {
   mid: 'polygon(0 0, calc(100% - 10px) 0, 100% 50%, calc(100% - 10px) 100%, 0 100%, 10px 50%)',
   last: 'polygon(0 0, 100% 0, 100% 100%, 0 100%, 10px 50%)',
 };
+// ---- V5.55→V5.56（用户规格）：三卡（WAIMO/粤东/粤西）加宽 2rem（+32px）、高 15rem
+//（240px，原 252/224×262）——卡内布局分段重排：顶部图标距卡顶 1rem（16，V5.55 规格）、
+// 标题 52 / 技能标签行 104·130 / 迷你步骤行 152 / 描述区 189..240（三行贴底）；
+// 水平：居中元素（图标/标题/第二行标签/迷你步骤行）随卡中心右移 16（子步骤行居中，
+// 左右边距 ≥1rem、步骤少则大）；技能标签首行保持距左右边沿 1rem（左边距 16、自然宽）。
+// V5.57（用户规格）：WAIMO 卡高改与专线一致（240→290，宽 252 保留）——回退 V5.55 布局
+//（整体 -8，minis 170 距技能标签行底 158 恰 0.75rem）+ 描述区 +21 下移贴新卡底（239..290）；
+// 技能标签行两端对齐——右标签随加宽贴新右缘（+32）、左标签保持左 1rem。
+// ZX 卡不动（高 290、V5.55 布局整体 -8）。内容节点 = bg 子树经 group（Fragment）展开后的
+// 首层 DOM 子节点；粤西发光容器（快照镜像卡）内容同规则重排（独立坐标系见 dyGlow）。
+// 分段偏移按节点设计 y 落段（各卡 y 分布见 %TEMP%\opencode\clockfreeze\v556_cards.txt）：
+//   YD·YX bg：icon24 / 标题56·副题82 / 能力行118 / 标签146 / minis170·188 → dy -8/-4/-6/-16/-18
+//   YX glow（本地 y = 内容div16+内层y）：icon16/标题56/能力行110/标签138/minis170·188/
+//     内嵌描述234 → dy 0/-4/-6/-8/-18/-29 ----
+export const CARD_LIFT = 8;               // ZX 卡内容上移（V5.55 保持）
+export const CARD_GROW = 10;              // ZX 卡底板增高（V5.55 保持：高 280→290）
+export const CARD_WIDE = 32;              // 三卡加宽 2rem
+export const CARD_H = 240;                // 三卡高 15rem
+export const CARD_DESC_DY = { WAIMO: 21, ZX: -CARD_LIFT, YD: -29, YX: -29 };      // 描述区位移（加法；WAIMO 卡高 290→239 贴底、三卡 218→189、ZX 246→238）
+export const CARD_MINI_DY = { WAIMO: CARD_LIFT, ZX: CARD_LIFT, YD: 18, YX: 18 };  // 迷你圆点行上移（WAIMO 290 卡：178→170 距技能标签行底 0.75rem）
+export const CARD_MINI_DX = { WAIMO: 16, ZX: 0, YD: 16, YX: 16 };          // 迷你圆点行右移（居中）
+// bg 内容分段偏移（k=卡名，y=节点设计 y，bg 本地）；V5.57：WAIMO 卡高改与专线一致（290）
+// ——回退 V5.55 布局（整体 -8：minis 170 距技能标签行底 158 恰 0.75rem），描述区另由
+// CARD_DESC_DY=+21 下移贴新卡底（239..290）
+const dyOf = (k, y) => {
+  if (k === 'ZX' || k === 'WAIMO') return -CARD_LIFT;
+  return y < 50 ? -8 : y < 109 ? -4 : y < 140 ? -6 : y < 160 ? -16 : -18;
+};
+// 发光容器内容分段偏移（glow 本地 y）
+const dyGlow = (y) => (y < 50 ? 0 : y < 109 ? -4 : y < 135 ? -6 : y < 160 ? -8 : y < 218 ? -18 : -29);
+// 水平偏移（V5.57：技能标签行两端对齐——右标签随卡加宽贴新右缘 +32、左标签保持距左 1rem；
+// 其余居中元素 +16）
+const dxOf = (k, it) => {
+  if (k === 'ZX') return 0;
+  const lo = k === 'WAIMO' ? 116 : 109;
+  if (it.y >= lo && it.y < 140) return it.x > 50 ? CARD_WIDE : 0;
+  return CARD_WIDE / 2;
+};
+const findNode = (id, node) => {
+  if (node.id === id) return node;
+  for (const c of node.children || []) { const r = findNode(id, c); if (r) return r; }
+  return null;
+};
+const CARD_CONTENT = (() => {
+  // group（Fragment）展开收集首层 DOM 子节点（y+base：bg 系 base=0；glow 系 base=内容div y）
+  const layer = (n, acc, base, glow) => {
+    for (const c of n.children || []) {
+      if (c.kind === 'group') { layer(c, acc, base, glow); continue; }
+      acc.push({ id: c.id, x: c.x, y: c.y + base, glow });
+    }
+  };
+  const res = {};
+  for (const k of ['WAIMO', 'ZX', 'YD', 'YX']) {
+    const acc = [];
+    const bg = findNode(CARDS[k].bgId, FLOW_ROOT);
+    if (bg) layer(bg, acc, 0, false);
+    if (k === 'YX') {
+      // 发光容器（快照镜像）：容器 div → 内容 div（x16 y16，DOM 坐标系）→ 其 group 展开
+      // 的首层子节点（y 换算 glow 本地 = 16 + 内层 y，分段见 dyGlow；容器自身宽高另补）
+      const glow = findNode(CARDS.YX.glowId, FLOW_ROOT);
+      const inner = glow && (glow.children || []).find((c) => c.kind === 'div');
+      if (inner) layer(inner, acc, inner.y, true);
+    }
+    res[k] = acc;
+  }
+  return res;
+})();
 // 日志面板需保比例的设计节点（面板随左栏收起展宽）：文本（不含胶囊内嵌文本）、协议胶囊、
 // 行首合并图标；底板条/斑马纹/滚动条/单元格分隔线随面板展宽，把手随面板平移
 const LOG_KEEP = (() => {
@@ -289,9 +356,27 @@ export function remapPathEnds(ctx, d, firstKey, lastKey) {
     const sl = segs[segs.length - 1];
     if (lastKey) {
       const ql = shift(lastKey, sl.to);
-      // H/V 只能表达单轴，端点另一轴的集群位移无法表达 → 升格为 L（几何等效，双轴可写）
-      if (sl.cmd === 'H' || sl.cmd === 'V') { sl.cmd = 'L'; sl.nums = [ql.x, ql.y]; }
-      else if (sl.cmd === 'Q') { sl.nums[2] = ql.x; sl.nums[3] = ql.y; }
+      // V5.42（用户规格：协作日志收起 fy≠1 时连线末段倾斜）：末段 H/V 保持轴向对齐——
+      // 端点位移的正交分量交由前一拐角段吸收（前段 V 改目标 y / Q 角点整体纵向平移 /
+      // H 改目标 x），末段仅取同轴分量（H 取 x、V 取 y）；前段为 M（单段水平线）时
+      // 末端 y 随源端（水平优先，目标端边缘小量偏差）。fy=1（左栏收起/展开态）时
+      // ql.y 与设计值一致，退化为原 L 升格几何（像素回归安全）
+      const prev = segs.length >= 2 ? segs[segs.length - 2] : null;
+      if (sl.cmd === 'H') {
+        sl.nums[0] = ql.x;
+        if (prev) {
+          if (prev.cmd === 'V') prev.nums[0] = ql.y;
+          else if (prev.cmd === 'Q') { prev.nums[1] = ql.y; prev.nums[3] = ql.y; }
+          else if (prev.cmd === 'L') prev.nums[1] = ql.y;
+        }
+      } else if (sl.cmd === 'V') {
+        sl.nums[0] = ql.y;
+        if (prev) {
+          if (prev.cmd === 'H') prev.nums[0] = ql.x;
+          else if (prev.cmd === 'Q') { prev.nums[0] = ql.x; prev.nums[2] = ql.x; }
+          else if (prev.cmd === 'L') prev.nums[0] = ql.x;
+        }
+      } else if (sl.cmd === 'Q') { sl.nums[2] = ql.x; sl.nums[3] = ql.y; }
       else { sl.nums[0] = ql.x; sl.nums[1] = ql.y; }
     }
   }
@@ -386,8 +471,11 @@ export function buildUiPatches(ctx) {
   // border-radius 0.2rem(4px) / 180° 蓝渐变 + 中心辐射底（#5CACFF3D→透明、#91C7FF44→透明）/
   // 0.05rem(1px) #5CACFF 描边（容器 id 手工登记：23:135676 客服 / 23:135678 监控室 /
   // 23:135680 传输室，见 design/regions/flow-chart.js；组间连线同批改白色半透明线、光束滑块保留）
+  // V5.52（用户规格）：胶囊样式定稿回归 V5.11 原版——border-radius 0.2rem +
+  // linear-gradient(180deg,#5CACFF3D,#5CACFF00) + radial-gradient(circle at 50% 50%,#91C7FF44,#5CACFF00)
+  // + border 0.05rem solid #5CACFF；V5.44..V5.51 的高光/边带/角弧/box-shadow 各版全部废止
   const ROOM_TAB_STYLE = {
-    backgroundImage: 'linear-gradient(180deg, rgba(92,172,255,0.24) 0%, rgba(92,172,255,0) 100%), radial-gradient(circle at 50% 50%, rgba(145,199,255,0.27) 0%, rgba(92,172,255,0) 100%)',
+    backgroundImage: 'linear-gradient(180deg, rgba(92,172,255,0.24) 0%, rgba(92,172,255,0) 100%), radial-gradient(circle at 50% 50%, rgba(145,199,255,0.267) 0%, rgba(92,172,255,0) 100%)',
     border: '1px solid rgba(92,172,255,1)',
     borderRadius: '4px',
   };
@@ -413,24 +501,54 @@ export function buildUiPatches(ctx) {
     for (const id of ic.hide) P.set(id, { hide: true });
     P.set(ic.boxId, { s: { backgroundImage: 'url(' + ic.src + ')', backgroundSize: '100% 100%', backgroundRepeat: 'no-repeat' } });
   }
+  // V5.52（用户规格）：顶部导航左区装饰（蒙版 23:137654，748×47 @ opacity 0.16）整块删除——
+  // 原设计为斜向光带（30° 旋转矩形 + 斜切 sprite），导出子节点大多落于 47px 蒙版条外被
+  // 裁剪不可见（仅存平向底渐变）；V5.46..V5.49 曾以 CSS 斜向光带重建/转向，均废止，直接隐藏
+  P.set('23:137654', { hide: true });
+  // V5.52（用户规格）：顶部导航「协作观测」标题加粗 font-weight:700（渐变文字 23:137670）
+  P.set('23:137670', { s: { fontWeight: '700' } });
   // V4：外层步骤名（设计烤入）——投诉定界→定界定位、方案生成→问题处置（两案同名，文档口径）
   P.set(CHEVRONS[2].nameId, { text: '定界定位' });
   P.set(CHEVRONS[4].nameId, { text: '问题处置' });
+  // V5.39（用户规格）：步骤标题加粗 font-weight:700（快照/回放全态；合并上文文案补丁）
+  CHEVRONS.forEach((ch) => {
+    const prev = P.get(ch.nameId) || {};
+    P.set(ch.nameId, { ...prev, s: { ...(prev.s || {}), fontWeight: '700' } });
+  });
+  // V5.45（用户规格）：步骤条图标全白（icon 为切图 SVG，亮度归零+反色统一为白色剪影）；
+  // V5.55（用户规格）：问题处置图标（23:135806，ic_ict_creating_design_state——蓝色文档+
+  // 蓝圆底、内含黑色横线与加号）除外——全白滤镜使黑色元素不可见（"显示的全是白色"），
+  // 保留原色渲染
+  CHEVRONS.forEach((ch) => {
+    if (ch.iconId !== '23:135806') P.set(ch.iconId, { s: { filter: 'brightness(0) invert(1)' } });
+  });
+  // V5.45（用户反馈"执行中标题仍发蓝"定位）：chip 背板在 DOM 序中后于标题/时长渲染并
+  // 覆盖之（V2.16 版式，文字穿透背板）——执行中背板为半透明蓝 rgba(0,103,209,0.4) 叠
+  // stPulse 亮度脉冲，白色文字被蓝罩染成浅蓝（computed color 恒白故计算色探测不可见，
+  // 强刷无效的真因）；标题/时长 zIndex 提升到背板之上——文字恒纯白，背板样式不变
+  CHEVRONS.forEach((ch) => {
+    const nm = P.get(ch.nameId) || {};
+    P.set(ch.nameId, { ...nm, s: { ...(nm.s || {}), zIndex: 2 } });
+    const du = P.get(ch.durId) || {};
+    P.set(ch.durId, { ...du, s: { ...(du.s || {}), zIndex: 2 } });
+  });
   // V4：粤东/粤西卡迷你步骤标题（设计烤入）——槽1 问题定位→根因定位、槽2 方案生成→抢通执行
   //（槽3 抢通执行两案均不使用→隐藏；发光容器母版无导出标题 id，回放态不渲染、快照态沿用设计文字）
   for (const k of ['YD', 'YX']) {
     P.set(CARDS[k].mini[0].titleId, { text: '根因定位' });
     P.set(CARDS[k].mini[1].titleId, { text: '抢通执行' });
   }
-  // V5：工单卡客户名（用户规格）——#FFFFFF / Microsoft YaHei / bold / 0.8rem 行高 1.2rem，
-  // 字距 0、左对齐；较长客户名（10/16 字）溢出省略 + 悬浮全文（工单描述行同款 ELLIPSIS）
+  // V5：工单卡客户名（用户规格）——#FFFFFF / Microsoft YaHei / bold、字距 0、左对齐；
+  // 较长客户名（10/16 字）溢出省略 + 悬浮全文（工单描述行同款 ELLIPSIS）；
+  // V5.44（用户规格）：字号 1rem / 行高 1.5rem（原 0.8/1.2）——行高 24 与「已完成」
+  // 标签行（y44 h24）同高水平对齐
   const NAME_FONT = {
     ...ELLIPSIS,
     color: '#FFFFFF',
     fontFamily: "'Microsoft YaHei'",
     fontWeight: 'bold',
-    fontSize: '0.8rem',
-    lineHeight: '1.2rem',
+    fontSize: '1rem',
+    lineHeight: '1.5rem',
     letterSpacing: '0rem',
     textAlign: 'left',
     width: '136px',
@@ -442,6 +560,9 @@ export function buildUiPatches(ctx) {
     P.set(ORDER_NO_IDS[slot], { text: CASES[k].orderNo });
     P.set(CUST_IDS[slot], { text: CASES[k].customer, title: CASES[k].customer, s: NAME_FONT });
   }
+  // V5.44（用户规格）：case1 工单卡图标换 case2 同款——设计烤入 c1 为 ic_public_cloud、
+  // c2 为 ic_ebg_hospital，医院客户（广州新市医院）应配医院图标（LayerView icon src 补丁）
+  P.set('23:137127', { src: '/icons/ic_ebg_hospital.svg' });
   // 面板收起（V2.12）：设计把手与箭头可点提示（收起后由覆盖层副本把手承担展开）；
   // 日志面板包裹层 pointer-events:none，其把手/箭头需显式恢复 auto 才可点
   P.set(LP_HANDLE_ID, { title: '收起工单列表', s: { cursor: 'pointer' } });
@@ -455,6 +576,11 @@ export function buildUiPatches(ctx) {
   // 点阵背景：V5.20（用户规格）整层去除——不再铺点（原 V2.24..V2.25：浅灰 16px 平铺；
   // V3.4 颜色 #C9C9C9、V3.6 透明度 0.25——均随去除废止）
   P.set(DOT_BG_ID, { hide: true });
+  // 缩放工具条图标（V5.28 用户规格）：设计版＋/－子树隐藏——放大图标 path5 为 12.8×12.8
+  // 白色实心圆（子序最后、盖住＋字形 sprite → 放大按钮呈白圆点）；ZoomToolbar 以 CSS 重建
+  // 白色＋/－（background:#FFF、border:0.05rem(1px) solid #FFF）；适应图标与百分比文字保留设计渲染
+  P.set('23:135660', { hide: true });
+  P.set('23:135668', { hide: true });
   // 回放按钮组图标水平对齐（V2.16）：单步/倍速/停止按钮的 1px 边框使内部绝对定位的图标/
   // 文字整体下移 1px（回放按钮为实底无边框）→ 改 inset box-shadow 描边（视觉等效、不占布局）
   for (const id of ['23:137029', '23:137058', '23:137063']) {
@@ -496,22 +622,58 @@ export function buildUiPatches(ctx) {
   for (const id of LOG_KEEP) putFit(id, ctr);
   //（V2.14 视口铺满曾在此对非流程图区域原子单元反向视口系数；V2.17 整页等比后移除——
   //  内容随画布等比缩放即 rem 语义，且避免渐变文字节点被 transform 化产生重影）
-  // 步骤条文字可选中 + 箭头造型（V2.16；V2.19 间距定稿 0.25rem）：chip 背板后渲染且覆盖标题/时长
-  //（文字本为 DOM 文本，穿透鼠标事件即可选中）；chip 在原 159.75 格内收窄 4px 居中
-  //（相邻步骤边沿间距 0.25rem=4px——16/8px 时图标紧贴左切口似在条外，收窄后图标距切口余量
-  // ~6.9px 稳在条内），clip-path 剪出右侧凸出尖端/左侧朝右凹陷切口，
+  // 步骤条文字可选中 + 箭头造型（V2.16；V2.19 间距 0.25rem）：chip 背板后渲染且覆盖标题/时长
+  //（文字本为 DOM 文本，穿透鼠标事件即可选中）；chip 在原 159.75 格内收窄居中
+  //（V2.19 收窄 4px=间距 4px；**V5.50（用户规格）：间距再缩短约 1/3 → 收窄 2.67px
+  //（左右各 1.33px）**——16/8px 时图标紧贴左切口似在条外，收窄后图标距切口余量稳在条内），
+  // clip-path 剪出右侧凸出尖端/左侧朝右凹陷切口，
   // 首枚左缘平/末枚右缘平（传输室未登场时末枚动态右平见 buildPatches）；
-  // chip 中心不变 → 反向缩放原点改锚自身中心（覆盖 CHEVRON_SATS 估值）
+  // chip 中心不变 → 反向缩放原点改锚自身中心（覆盖 CHEVRON_SATS 估值）；
+  // V5.53（用户规格）：chip 可点击从该步骤回放——原 pointerEvents:'none'（V2.16 文字
+  // 在背板下需穿透选中）废止：V5.45 起标题/时长 zIndex2 已浮于背板之上、命中恒先落文字，
+  // 背板恢复鼠标事件不再遮挡选中；chip/文字/图标统一 pointer 光标（clip-path 同时约束
+  // 命中区为箭头造型，切口外点击自然穿透）
   CHEVRONS.forEach((ch, i) => {
     const clip = i === 0 ? CHEV_CLIP.first : (i === CHEVRONS.length - 1 ? CHEV_CLIP.last : CHEV_CLIP.mid);
     putFit(ch.chipId, {
-      left: (ch.box.x - 305 + 2) + 'px',
-      width: (ch.box.w - 4) + 'px',
+      left: (ch.box.x - 305 + 1.33) + 'px',
+      width: (ch.box.w - 2.67) + 'px',
       clipPath: clip,
       transformOrigin: '50% 50%',
-      pointerEvents: 'none',
+      cursor: 'pointer',
     });
+    putFit(ch.nameId, { cursor: 'pointer' });
+    putFit(ch.durId, { cursor: 'pointer' });
+    putFit(ch.iconId, { cursor: 'pointer' });
   });
+  // V5.55（用户规格）：主标题上移 0.5rem（top 69→61）+ 加宽 378→396——V5.43 加粗后
+  // 文字实宽 384 超出背景盒（background-clip:text，尾部字形无背景不可见=「没显示全」），
+  // 右向加宽后全文可见（左对齐起点不变，视觉位置不移）
+  P.set('23:137645', { s: { top: '61px', width: '396px' } });
+  // V5.55（用户规格）：编排中心卡（ZX 卡内 23:136490，与平台卡内注册中心子卡同款）——
+  // 高度统一 2rem（48→32）、图标缩至 1.5rem（32→24，垂直居中 top 4）、文字 top 5；
+  // 横向位置不变（注册中心子卡见 PlatformNodeCard）
+  putFit('23:136490', { height: '32px' });
+  putFit('23:136491', { top: '4px', width: '24px', height: '24px' });
+  putFit('23:136500', { top: '5px' });
+  // V5.55/V5.56/V5.57（用户规格）：卡内容重排（分段偏移 dyOf/dyGlow/dxOf，见文件头注释）
+  // + 底板尺寸——三卡 240 高/加宽 32（bg+glow）、WAIMO 高与专线一致（290）、ZX 保持 290/原宽；
+  // 技能标签行右标签贴新右缘（+32）、左标签保持设计 x=16（距左边沿 1rem）
+  for (const k of ['WAIMO', 'ZX', 'YD', 'YX']) {
+    for (const it of CARD_CONTENT[k]) {
+      const dy = it.glow ? dyGlow(it.y) : dyOf(k, it.y);
+      const dx = dxOf(k, it);
+      const fit = { top: (it.y + dy) + 'px' };
+      if (dx) fit.left = (it.x + dx) + 'px';
+      putFit(it.id, fit);
+    }
+    const h = k === 'ZX' ? CARDS.ZX.box.h + CARD_GROW : (k === 'WAIMO' ? CARDS.ZX.box.h + CARD_GROW : CARD_H);
+    if (k === 'ZX') putFit(CARDS[k].bgId, { height: h + 'px' });
+    else putFit(CARDS[k].bgId, { height: h + 'px', width: (CARDS[k].box.w + CARD_WIDE) + 'px' });
+  }
+  putFit(CARDS.YX.glowId, { height: CARD_H + 'px', width: (CARDS.YX.box.w + CARD_WIDE) + 'px' });
+  // V5.57（用户规格）：缩放工具栏底色 #000000 50%（设计卡 23:135645，原 #F3F3F319）
+  P.set(ZOOM.barId, { s: { background: 'rgba(0,0,0,0.5)' } });
   if (ctx.speed !== 0.5) P.set(BUTTONS.speed.labelTextId, { text: ctx.speed + 'x' });
   return P;
 }
@@ -522,10 +684,21 @@ export function buildPatches(world, ctx) {
   const hide = (id) => { if (id) P.set(id, { hide: true }); };
 
   // ---- 静态占位文案修正（快照/回放一致）：XX → 粤东/粤西 ----
-  // 卡片标题（粤东/粤西 SPN 智能体，含粤西发光容器内同名副本）
-  set(CARDS.YD.nameTextId, { text: '粤东SPN网络内生智能' });
-  set(CARDS.YX.nameTextId, { text: '粤西SPN网络内生智能' });
-  set(CARDS.YX.glowNameTextId, { text: '粤西SPN网络内生智能' });
+  // 卡片标题（粤东/粤西 SPN 智能体，含粤西发光容器内同名副本）——文案改写 + V5.39 加粗
+  // V5.39（用户规格）：卡片标题（WAIMO/专线/粤东/粤西）font-weight:700——WAIMO/专线
+  // 标题节点无运行时文案补丁需求、未入 CARDS 导出，按设计节点 id 直补（烤入 500）：
+  // 23:135918=WAIMO投诉处理智能体、23:136488=专线投诉处理智能体
+  set('23:135918', { s: { fontWeight: '700' } });
+  set('23:136488', { s: { fontWeight: '700' } });
+  set(CARDS.YD.nameTextId, { text: '粤东SPN网络内生智能', s: { fontWeight: '700' } });
+  set(CARDS.YX.nameTextId, { text: '粤西SPN网络内生智能', s: { fontWeight: '700' } });
+  set(CARDS.YX.glowNameTextId, { text: '粤西SPN网络内生智能', s: { fontWeight: '700' } });
+  // V5.43（用户规格）：主标题（传输专线投诉处理场景A2A-T多智能体协同，渐变文字 23:137645）加粗
+  set('23:137645', { s: { fontWeight: '700' } });
+  // V5.45（用户规格）：区域标题加粗——「投诉分析流」（流程区标题 23:135686）与
+  // 「工单列表」（左栏标题 23:137102，渐变文字）
+  set('23:135686', { s: { fontWeight: '700' } });
+  set('23:137102', { s: { fontWeight: '700' } });
   // 左侧工单卡描述：真实文案 + 溢出省略 + 悬浮全文；
   // c1 协商补充 vlan 后（orderInfo，t=226 Accept）工单信息更新为补充后的端口专线信息
   // V5.23：描述随 ORDER_SLOT 落位
@@ -564,35 +737,60 @@ export function buildPatches(world, ctx) {
       P.set(LOGS.scrollbarId, { hide: true });
       set(LOGS.countTextId, { text: CASES[ctx.caseId].logs.length + '条' });
     }
+    // V5.29（用户规格）：组间连线光点（滑块）改为"仅登场动效"——登场窗口外一律隐藏，
+    // 快照态亦不呈现（原设计静态滑块随之隐藏；V5.12"回放中常动/其余静止于中点"废止）
+    ROOMS.glides.forEach((g) => hide(g.id));
+    // V5.34/V5.54/V5.57（用户规格）：传输室胶囊两案均由覆盖层重绘（设计节点隐藏，见
+    // StorylineOverlays 两枚胶囊）；监控室—传输室连线（CS_LINK，区域本地 515.58 起、
+    // 世界 820.58 起）右端贴各案传输室胶囊左缘——V5.57 按案分支：
+    //   c1 胶囊 1072.5（根因定位上方）→ 宽 251.92（世界 820.58..1072.5）
+    //   c2 胶囊 1293.79（问题处置上方）→ 宽 473.21（世界 820.58..1293.79）
+    //（原两案统一 473.21 在 c1 穿过传输室胶囊——"虚线穿过"根因）
+    hide(CS_TAB_ID);
+    P.set(CS_LINK_ID, { s: { width: (ctx.caseId === 'c1' ? 251.92 : 473.21) + 'px' } });
     return P;
   }
 
-  // ---- 传输室延迟登场：投诉定界完成、检索命中专线投诉处置智能体（ZX appear，两案例均在
-  // 定界步骤结束后的检索窗口末尾）之前，传输室整组不呈现——房间标签、监控室—传输室连线
-  // 与滑块、该室 4 个步骤条（根因定位/方案生成/修复验证/投诉报结），均随专线卡同时出现 ----
-  const csRoomIdx = ROOMS.rooms.findIndex((r) => r.key === '传输室');
-  const csOn = world.visible.ZX;
+  // ---- 传输室随根因定位步骤揭示（V5.54 用户规格；V5.56 起步骤3 与 Task-T 面板同拍
+  // t=144——检索智能体划入定界定位步骤后根因定位自 Task-T 弹窗出现开始）——
+  // 胶囊两枚/竖线/虚线布局见 StorylineOverlays（V5.56 按 caseId 分支），此处只管
+  // 设计连线 CS_LINK 与滑块 g1 的登场窗口 ----
+  const csOn = world.steps[3] !== 'todo';
 
-  // ---- 房间白色高亮底：跟随当前步骤所在房间（客服/监控室/传输室）平移 ----
-  const steps = world.steps;
-  let ai = steps.lastIndexOf('active');
-  if (ai === -1) ai = steps.length - 1; // 全部完成 → 最后一步所在房间（传输室）
-  // 传输室未登场时：当前步骤已推进到该室（定界完成→检索命中的空窗），高亮底回落到最近的已登场房间
-  if (!csOn) { while (ai > 0 && CASES[ctx.caseId].stepRooms[ai] === csRoomIdx) ai--; }
-  const rect = ROOMS.rooms[CASES[ctx.caseId].stepRooms[ai]] || ROOMS.rooms[ROOMS.rooms.length - 1];
-  set(ROOMS.bgId, { s: {
-    left: rect.left + 'px',
-    width: rect.width + 'px',
-    transition: 'left 0.5s ease, width 0.5s ease',
-  } });
-  // 组间连线（客服—监控室—传输室）滑块动效；监控室—传输室段（连线 sprite+滑块）随传输室登场
+  // 房间白色高亮底（V5.31 用户规格）：整块移除——不再随当前步骤所在房间平移展示
+  // （原"跟随当前房间（客服/监控室/传输室）平移 + 0.5s 过渡"逻辑废止；快照态原有隐藏一致）
+  hide(ROOMS.bgId);
+  // 组间连线（客服—监控室—传输室）光点动效（V5.29 用户规格）：只在对应房间首次登场时
+  // 动效、之后整点消失。窗口 = 滑块行程 1 周的业务时长（dur×4×speed 业务秒——1x 恰一周、
+  // 倍速按比例展宽保实长）；窗口内回放中施加动画类（暂停/seek 静止呈现）、窗口外与
+  // 登场前隐藏；监控室—传输室段登场前仍随传输室整组隐藏（原逻辑）。
+  // V5.36：监控室 g0 随 WAIMO 卡 t=0；V5.54/V5.56：传输室 g1 随根因定位步骤
+  //（V5.56 boundaries[2]=144，与 Task-T 面板同拍）——V5.57 连线按案缩短（c1 251.92 /
+  // c2 473.21），g1 行程/时长/位置随线宽等速（74.9px/s：c1 ±85.96/2.3s、c2 ±196.61/5.25s，
+  // 见 StorylineOverlays glideCss）
+  const tRoom2 = CASES[ctx.caseId].boundaries[2];
+  const isC1 = ctx.caseId === 'c1';
+  const g1Half = isC1 ? 85.96 : 196.61;   // (线宽−80)/2
+  const g1Dur = isC1 ? 2.3 : 5.25;        // 2×half / 74.9px/s
+  const g1Left = isC1 ? 601.54 : 712.19;  // 区域本地 = 线左端 515.58 + half
+  const tb = ctx.t != null ? ctx.t : 0;
+  const spd = ctx.speed || 1;
   ROOMS.glides.forEach((g, i) => {
-    if (!csOn && i === csRoomIdx - 1) { hide(g.id); return; }
-    // V5.12（用户规格）：光束滑块仅在回放中移动——其余时刻（暂停/完成/快照）不施加
-    // 动画类、静止呈现于连线中点
+    if (!csOn && i === 1) { hide(g.id); return; }
+    const T = i === 0 ? 0 : tRoom2;
+    const dur = i === 1 ? g1Dur : g.dur;
+    const win = Math.ceil(dur * 4 * spd);
+    if (tb < T || tb >= T + win) { hide(g.id); return; }
     if (ctx.mode === 'playing') set(g.id, { c: 'st-glide' + i });
   });
-  if (!csOn) { hide(CS_TAB_ID); hide(CS_LINK_ID); }
+  // V5.34/V5.54/V5.57：传输室胶囊覆盖层重绘（两案隐藏设计节点）；连线按案缩至各案
+  // 传输室胶囊左缘；滑块 g1 随线左端+行程重定位（合并式补丁——保留前述 hide/动画类）
+  hide(CS_TAB_ID);
+  const pg1 = P.get(ROOMS.glides[1].id) || {};
+  P.set(ROOMS.glides[1].id, { ...pg1, s: { ...(pg1.s || {}), left: g1Left + 'px' } });
+  P.set(CS_LINK_ID, { s: { width: (isC1 ? 251.92 : 473.21) + 'px' } });
+  // V5.54：传输室连线随根因定位步骤揭示（csOn=步骤3 激活；原随专线卡登场废止）
+  if (!csOn) { hide(CS_LINK_ID); }
 
   // ---- 智能体卡片 ----
   for (const k of AGENTS) {
@@ -632,7 +830,9 @@ export function buildPatches(world, ctx) {
       ...bgPrev,
       s: {
         ...bgPrev.s,
-        height: (card.box.h + grown) + 'px',
+        // V5.56/V5.57（用户规格）：三卡高 15rem（240）、WAIMO 高与专线一致（290=ZX 同式）；
+        // ZX 保持 V5.55 增高（290）——与 uiPatches 同值（此处补丁覆盖后保持一致）
+        height: (k === 'ZX' || k === 'WAIMO' ? CARDS.ZX.box.h + grown + CARD_GROW : CARD_H) + 'px',
         transition: 'height 0.3s ease, border-color 0.3s ease, box-shadow 0.3s ease',
       },
     });
@@ -707,7 +907,9 @@ export function buildPatches(world, ctx) {
       const dx = card.mini[p].slotBox.x - m.slotBox.x + cShift;
       if (dx) ts.transform = 'translateX(' + dx + 'px)';
       ts.transition = 'transform 0.25s ease';
-      set(m.titleId, { s: ts });
+      // V5.47（用户规格）：执行中子步骤（loading）持续脉冲——与步骤条执行中同款呼吸
+      //（调度处置/意图识别/Task-T 等详情面板在场期间激活胶囊同样动效，.st-mini-active）
+      set(m.titleId, s === 'active' ? { c: 'st-mini-active', s: ts } : { s: ts });
     });
   }
   // 粤西：内嵌步骤描述与发光容器在回放态隐藏（描述由覆盖层统一渲染、发光由 st-running 提供）
@@ -716,16 +918,27 @@ export function buildPatches(world, ctx) {
 
   // ---- 步骤条 ----
   let lastVisChev = -1;
+  let firstHiddenChev = -1;
   CHEVRONS.forEach((ch, i) => {
-    // 传输室步骤（根因定位/方案生成/修复验证/投诉报结）：随专线投诉处置智能体登场，此前整组隐藏
-    if (!csOn && CASES[ctx.caseId].stepRooms[i] === csRoomIdx) {
+    // V5.35（用户规格）：未执行到的步骤（todo）步骤条不出现——执行到该步骤时才揭示；
+    // V5.54（用户规格）：两案统一（原 c2 "传输室步骤随专线卡 csOn 整组登场"废止——
+    // 房间胶囊/连线已改随步骤揭示，整组隐藏会造成步骤条中段空缺）；与房间分区
+    //（根因定位/问题处置=传输室，修复验证/投诉报结=监控室）无绑定，逐步骤独立揭示
+    const hidden = world.steps[i] === 'todo';
+    if (hidden) {
+      if (firstHiddenChev < 0) firstHiddenChev = i;
       [ch.chipId, ch.iconId, ch.nameId, ch.durId].forEach(hide);
       return;
     }
     lastVisChev = i;
     const st = world.steps[i];
     if (st === 'active') {
+      // V5.40（用户规格）：执行中步骤标题保持白色——V5.38 曾按反馈改主题蓝（rgba(92,172,255,1)），
+      // 用户澄清白色为正确样式、勿改蓝，该补丁废止；active 仅蓝底+脉冲（标题白色为设计烤入）。
+      // V5.43：nameId 显式补白色（防御式——用户报告仍见蓝色，实测当前构建 seek/播放均白，
+      // 判为旧构建缓存；显式补丁保证任何环境下执行中标题恒白）
       set(ch.chipId, { c: 'st-chip-active', s: { backgroundColor: 'rgba(0,103,209,0.4)' } });
+      set(ch.nameId, { s: { color: 'rgba(255,255,255,1)' } });
     } else if (st === 'todo') {
       [ch.chipId, ch.iconId, ch.nameId, ch.durId].forEach((id) => set(id, { c: 'st-dim' }));
     } else {
@@ -734,12 +947,17 @@ export function buildPatches(world, ctx) {
       set(ch.chipId, { s: { backgroundColor: 'rgba(243,243,243,0.2)' } });
     }
   });
-  // 传输室未登场：末枚可见 chip 右缘改平（uiPatches 提供的是中段尖角造型；登场后覆盖消失自动还原。
-  // 与 active/todo 态样式合并，避免整条覆盖）
-  if (!csOn && lastVisChev >= 0 && lastVisChev < CHEVRONS.length - 1) {
-    const lc = CHEVRONS[lastVisChev].chipId;
+  // 隐藏段前一枚 chip 右缘改平（uiPatches 提供的是中段尖角造型；登场后覆盖消失
+  // 自动还原。V5.34：按"首个隐藏步骤的前一枚"取——case1 隐藏段为中段空缺（定界右缘改平）、
+  // case2 为末段截断，与原 lastVisChev 规则等价；V5.35：c1 首枚（受理）单独可见时用
+  // 全平矩形（首枚左缘本无切口，CHEV_CLIP.last 的左切口不适用）；与 active/todo 态样式合并）
+  const FLAT_RECT = 'polygon(0 0, 100% 0, 100% 100%, 0 100%)';
+  const flatChevIdx = firstHiddenChev > 0 ? firstHiddenChev - 1 : lastVisChev;
+  //（V5.54 两案统一按步骤状态隐藏后，firstHiddenChev 即首个未执行步骤）
+  if (flatChevIdx >= 0 && flatChevIdx < CHEVRONS.length - 1) {
+    const lc = CHEVRONS[flatChevIdx].chipId;
     const prev = P.get(lc) || {};
-    P.set(lc, { ...prev, s: { ...prev.s, clipPath: CHEV_CLIP.last } });
+    P.set(lc, { ...prev, s: { ...prev.s, clipPath: flatChevIdx === 0 ? FLAT_RECT : CHEV_CLIP.last } });
   }
 
   // ---- 连线与协议胶囊（回放态全部隐藏，由 SVG 覆盖层矢量重绘）----
@@ -766,9 +984,10 @@ export function buildPatches(world, ctx) {
   set(uns.id, { s: { border: '1px solid rgba(119,119,119,1)' } });
   ORDERS.checkIds.forEach(hide); // 静态对勾隐藏，覆盖层浮动对勾替代
   if (!world.caseDone) {
-    // 回放/单步进行中：选中工单卡状态显示「回放中」（案例本身已完成，非业务进行中）
-    set(sel.pillId, { s: { backgroundColor: 'rgba(246,158,57,0.15)' } });
-    set(sel.pillTextId, { text: '回放中', s: { color: 'rgba(246,158,57,1)' } });
+    // 回放/单步进行中：选中工单卡状态显示「回放中」（案例本身已完成，非业务进行中）；
+    // V5.32（用户规格）：改蓝色系（原橙色 rgba(246,158,57) 废止）——取房间胶囊同系 #5CACFF
+    set(sel.pillId, { s: { backgroundColor: 'rgba(92,172,255,0.15)' } });
+    set(sel.pillTextId, { text: '回放中', s: { color: 'rgba(92,172,255,1)' } });
   }
 
   return P;

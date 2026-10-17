@@ -4,7 +4,8 @@
 // 仅在事件边界发布状态（离散），连续动效全部由 CSS/SMIL 承担
 import React, { createContext, useContext, useEffect, useMemo, useRef, useState } from 'react';
 import { CASES, TIME_SCALE, foldWorld, worldSig } from './cases';
-import { buildPatches, buildUiPatches, ORDERS, ORDER_SLOT } from './roles';
+import { buildPatches, buildUiPatches, ORDERS, ORDER_SLOT, CHEVRONS } from './roles';
+import { taskTWindowOf } from './panel-timing';
 import './storyline.css';
 
 export const StoryContext = createContext(null);
@@ -15,21 +16,37 @@ export const ZOOM_STEPS = [0.5, 0.75, 1, 1.25, 1.5, 1.75, 2];
 
 // 工单卡整卡点击交互（V2.7）：按 ORDERS 容器节点 id 挂接到设计 DOM（见 LayerView），
 // 替代原透明覆盖按钮 —— 卡内文字可选中；拖拽超过阈值或已选中文本时不触发案例切换
+// V5.53（用户规格）：进度条（步骤条）chip 点击——从该步骤起始时刻回放
+//（背板 chipId + 标题/时长文字 nameId/durId + 图标 iconId 四节点同注册：
+// 文字 zIndex2 浮于背板之上须单独挂接；icon 无挂接分支但注册无害兜底）
 function makeInteractions(apiRef) {
   let dx = 0;
   let dy = 0;
+  // 点击守卫：拖拽超阈值（拖动进度/选字）或存在选中文本时不触发
+  const guard = (e) => {
+    if (Math.abs(e.clientX - dx) > 5 || Math.abs(e.clientY - dy) > 5) return false;
+    const sel = typeof window !== 'undefined' && window.getSelection ? window.getSelection() : null;
+    if (sel && String(sel).length > 0) return false;
+    return true;
+  };
   const card = (id) => ({
     onPointerDown: (e) => { dx = e.clientX; dy = e.clientY; },
-    onClick: (e) => {
-      if (Math.abs(e.clientX - dx) > 5 || Math.abs(e.clientY - dy) > 5) return;
-      const sel = typeof window !== 'undefined' && window.getSelection ? window.getSelection() : null;
-      if (sel && String(sel).length > 0) return;
-      apiRef.current.selectCase(id);
-    },
+    onClick: (e) => { if (guard(e)) apiRef.current.selectCase(id); },
+  });
+  const chip = (i) => ({
+    onPointerDown: (e) => { dx = e.clientX; dy = e.clientY; },
+    onClick: (e) => { if (guard(e)) apiRef.current.replayStep(i); },
   });
   const m = {};
   // V5.23：工单卡整卡点击切换案例——按对调后槽位挂接（case2 在第一卡）
   for (const k of ['c1', 'c2']) m[ORDERS[ORDER_SLOT[k]].id] = card(k);
+  // V5.53：进度条 chip 点击从该步骤回放（replayStep 见 api——回放按钮/工单卡状态随 mode/world 自动跟随）
+  CHEVRONS.forEach((ch, i) => {
+    m[ch.chipId] = chip(i);
+    m[ch.nameId] = chip(i);
+    m[ch.durId] = chip(i);
+    m[ch.iconId] = chip(i);
+  });
   // 面板收起把手（V2.12）：设计把手 boder 条 + 箭头切图（兄弟节点需单独挂接）点击收起；
   // 收起态面板卸载，由覆盖层副本把手（PanelHandles）承担展开
   m['23:137098'] = { onClick: () => apiRef.current.toggleOrders() };
@@ -41,7 +58,7 @@ function makeInteractions(apiRef) {
 
 function makePub(mode, caseId, t, speed, zoom, logLive, logHidden, ordersHidden, vscale, api, interactions, search, status) {
   const world = mode === 'snapshot' ? null : foldWorld(CASES[caseId], t);
-  const ctx = { mode, caseId, speed, zoom, logLive, logHidden, ordersHidden, vscale, orderInfo: world ? !!world.orderInfo : false, search, status };
+  const ctx = { mode, caseId, t, speed, zoom, logLive, logHidden, ordersHidden, vscale, orderInfo: world ? !!world.orderInfo : false, search, status };
   return {
     mode, caseId, t, speed, zoom, logLive, logHidden, ordersHidden, vscale, world, api, interactions, search, status,
     patches: buildPatches(world, ctx),
@@ -145,6 +162,21 @@ export function StorylineProvider({ children }) {
         const c = CASES[st.current.caseId];
         stopLoop();
         commit({ mode: 'paused', t: Math.max(0, Math.min(t, c.total)), logLive: true });
+      },
+      // V5.53（用户规格）：进度条 chip 点击——从该步骤起始时刻回放（seek 到步起 + 立即播放）；
+      // 步起 = durations 前缀和（V5.56：c1: 0/12/72/144/420/484/496；c2: 0/12/72/144/384/469/495）；
+      // 任何当前态（完成/暂停/播放中）均可触发；回放按钮（暂停图标）/工单卡「回放中」
+      // 状态随 mode/world 发布自动跟随；
+      // V5.54/V5.56（用户规格）：根因定位（步骤3）从专线接收 Task-T 面板开始
+      //（taskTWindowOf.t0=144；V5.56 起步骤3 时间边界即 144——检索智能体已划入定界定位）
+      replayStep(i) {
+        const c = CASES[st.current.caseId];
+        let t = 0;
+        for (let k = 0; k < i && k < c.durations.length; k++) t += c.durations[k];
+        if (i === 3) t = taskTWindowOf(c).t0;
+        stopLoop();
+        commit({ mode: 'playing', t, logLive: true });
+        startLoop();
       },
       zoomIn() { stepZoom(1); },
       zoomOut() { stepZoom(-1); },

@@ -49,7 +49,7 @@ export default function IntentRecognitionPanel(props) {
         alt=""
         style={{ left: 186.69, top: 39.25, width: 171.48, height: 171.48 }}
       />
-      <div className="orb-label" style={{ left: 232, top: 136 }}>LLM React Agent</div>
+      <div className="orb-label" style={{ left: 232, top: 136 }}>LLM React</div>
 
       {/* ① 输入：标题+箭头+三行投诉文本整体渐入（左侧输入不分开显示） */}
       <div className={'p-io-title ir-reveal' + on(1)} style={{ left: 28, top: 96 }}>输入：用户投诉文本</div>
@@ -63,19 +63,11 @@ export default function IntentRecognitionPanel(props) {
         ))}
       </ul>
 
-      {/* ② Reasoning（上）→ ③ Action（右）→ ④ Observation（下）：绕光轮顺时针依次渐入 */}
-      <div className={'p-pill-caption ir-reveal' + on(2)} style={{ left: 121, top: 50, width: 120 }}>自主推理，思考怎么做。</div>
-      <div className={'p-pill ir-reveal' + on(2)} style={{ left: 168, top: 64, width: 73 }}>Reasoning</div>
-
-      <div className={'p-pill-caption ir-reveal' + on(3)} style={{ left: 323, top: 68, width: 116 }}>
-        1．文本抽取、意图分类
-        <br />
-        2．检索、查询工单知识库
-      </div>
-      <div className={'p-pill ir-reveal' + on(3)} style={{ left: 322, top: 100, width: 73 }}>Action</div>
-
-      <div className={'p-pill ir-reveal' + on(4)} style={{ left: 190, top: 172, width: 80 }}>Observation</div>
-      <div className={'p-pill-caption ir-reveal' + on(4)} style={{ left: 110, top: 202, width: 160 }}>获取执行结果，观察是否满足要求。</div>
+      {/* ② 推理（上）→ ③ 动作（右）→ ④ 观察（下）：绕光轮顺时针依次渐入
+          （V5.32 用户规格：Reasoning/Action/Observation 改中文、标签旁说明文字删除） */}
+      <div className={'p-pill ir-reveal' + on(2)} style={{ left: 168, top: 64, width: 73 }}>推理</div>
+      <div className={'p-pill ir-reveal' + on(3)} style={{ left: 322, top: 100, width: 73 }}>动作</div>
+      <div className={'p-pill ir-reveal' + on(4)} style={{ left: 190, top: 172, width: 80 }}>观察</div>
 
       {/* ⑤ 输出（末段） */}
       <div className={'p-io-title ir-reveal' + on(5)} style={{ left: 311, top: 165 }}>输出：投诉现象和投诉意图</div>

@@ -23,8 +23,9 @@ import '../../components/panels/panels.css';
 
 const center = (b) => ({ x: b.x + b.w / 2, y: b.y + b.h / 2 });
 
-// 能开平台（快照/回放常驻）
-const PLATFORM = { x: 369, y: 234, w: 144, h: 142 };
+// 能开平台（快照/回放常驻）；V5.57（用户规格）：平台卡下边沿距注册中心子卡 0.75rem
+//（子卡底 114 + 12 → 高 142→126）
+const PLATFORM = { x: 369, y: 234, w: 144, h: 126 };
 
 // WAIMO—专线 两卡中心中点（Task-T / Notification-T 面板锚点，随两侧卡片刚体平移）
 const WZ_MID = (() => {
@@ -39,7 +40,7 @@ const belowLine = (key, w, h) => {
 };
 
 // 子步骤详情面板（回放态，执行到对应子步骤/连线激活期时呈现）
-// V3.15：检索面板拆分两处——WAIMO 检索（reg-waimo-search）在平台卡右侧、选中「专线投诉处置智能体」；
+// V3.15：检索面板拆分两处——WAIMO 检索（reg-waimo-search）在平台卡右侧、选中「专线投诉处理智能体」；
 // 专线检索（reg-zx-search）在专线卡正下方、选中「粤东/粤西」（V4：两案例均双登场均选中两个）
 // V4：意图识别/Task-T/调度处置/Notification-T 面板注入 caseId——文案随案例切换（工单1/工单2）
 const PANEL_DEFS = [
@@ -47,29 +48,33 @@ const PANEL_DEFS = [
     // V3.21：意图识别面板分步动态（输入→Reasoning→Action→Observation→输出）——
     // 传入激活窗口与播放上下文（t/mode/speed），面板内部时钟按窗口进度推进；
     // V3.28：WAIMO 卡增高至 252（底缘 691），面板自 677 下移至 699 避让；
+    // V5.57：WAIMO 卡高与专线一致（290，底缘 729），面板 699→729 避让；
     // V5.2（回退此前逻辑）：信息顺时针依次渐入、常驻累计，左侧输入三行整体出现（不分开显示），
     // 各段 12 业务秒；窗口 = mini0 全窗（12..72，全部展示完成后才进入定界定位）。
     // V5.2：定界定位无详情面板——内容在 WAIMO 卡底描述区 4 句依次出现（cases.js desc 事件）
     key: 'intent', Comp: IntentRecognitionPanel,
     props: (pub) => ({ ...intentWindowOf(CASES[pub.caseId]), t: pub.t, mode: pub.mode, speed: pub.speed, timeScale: TIME_SCALE, caseId: pub.caseId }),
     when: (w, pub) => { const { t0, t1 } = intentWindowOf(CASES[pub.caseId]); return pub.t >= t0 && pub.t < t1; },
-    box: { x: 580, y: 699, w: 498, h: 232 }, anchor: () => center(CARDS.WAIMO.box),
+    box: { x: 580, y: 729, w: 498, h: 232 }, anchor: () => center(CARDS.WAIMO.box),
   },
   {
     // V3.30：调度处置面板三段分步（①手机 → ②左侧消息气泡 → ③右侧回复气泡）；
-    // V4：仅工单1 挂载（WAIMO 调度处置·现场上站修复；工单2 问题处置=粤西SPN 抢通，无此面板）
+    // V4：仅工单1 挂载（WAIMO 调度处置·现场上站修复；工单2 问题处置=粤西SPN 抢通，无此面板）；
+    // V5.57：随 WAIMO 卡高 290（底缘 729）下移 699→729 避让
     key: 'dispatch', Comp: DispatchPanel,
     props: (pub) => ({ ...dispatchWindowOf(CASES[pub.caseId]), t: pub.t, mode: pub.mode, speed: pub.speed, timeScale: TIME_SCALE, caseId: pub.caseId }),
     when: (w, pub) => { const { t0, t1 } = dispatchWindowOf(CASES[pub.caseId]); return pub.t >= t0 && pub.t < t1; },
-    box: { x: 733, y: 699, w: 192, h: 352 }, anchor: () => center(CARDS.WAIMO.box),
+    box: { x: 733, y: 729, w: 192, h: 352 }, anchor: () => center(CARDS.WAIMO.box),
   },
   {
     // V3.27：动态编排面板三段分步（左侧元素 → 编排引擎 → 右侧元素）；窗口 = mini1 激活
-    // → mini2（任务诊断）激活——分步在下一子步骤开始前完成（面板消失即下一子步骤开始）
+    // → mini2（任务诊断）激活——分步在下一子步骤开始前完成（面板消失即下一子步骤开始）；
+    // V5.56（用户规格）：图示距标题/左右/下边沿均 1rem——内容整体上移 20（图示顶 49=标题底
+    // 33+16）、面板高 218→201（图示底 185+16）
     key: 'orchestration', Comp: DynamicOrchestrationPanel,
     props: (pub) => ({ ...orchestrationWindowOf(CASES[pub.caseId]), t: pub.t, mode: pub.mode, speed: pub.speed, timeScale: TIME_SCALE }),
     when: (w, pub) => { const { t0, t1 } = orchestrationWindowOf(CASES[pub.caseId]); return pub.t >= t0 && pub.t < t1; },
-    box: { x: 1011, y: 701, w: 574, h: 218 }, anchor: () => center(CARDS.ZX.box),
+    box: { x: 1011, y: 701, w: 574, h: 201 }, anchor: () => center(CARDS.ZX.box),
   },
   {
     // V3.22：检索面板动态选中（相位驱动，窗口=连线激活期+4 业务秒）——前半未选，
@@ -91,11 +96,13 @@ const PANEL_DEFS = [
   {
     // V3.24：Task-T 面板窗口 = 任务下发 → 专线首个内部子步骤开始（面板消失后子步骤才执行，
     // 见 taskTWindowOf），8 段分步动态 + 滚动跟随；位置自连线居中左移至右缘齐 ZX 卡左缘
-    // （778..1136），不与专线卡迷你步骤/描述区域重叠
+    // （778..1136），不与专线卡迷你步骤/描述区域重叠；
+    // V5.56（用户规格）：面板距连线 0.25rem（waimo-zx-task 线底 549.5+4 → top 562→554）、
+    // 面板高 20.5rem（328）
     key: 'task-t', Comp: TaskTPanel,
     props: (pub) => ({ ...taskTWindowOf(CASES[pub.caseId]), t: pub.t, mode: pub.mode, speed: pub.speed, timeScale: TIME_SCALE, caseId: pub.caseId }),
     when: (w, pub) => { const { t0, t1 } = taskTWindowOf(CASES[pub.caseId]); return pub.t >= t0 && pub.t < t1; },
-    box: { x: 778, y: 562, w: 358, h: 330 }, anchor: () => WZ_MID,
+    box: { x: 778, y: 554, w: 358, h: 328 }, anchor: () => WZ_MID,
   },
   {
     // V3.27：Notification-T 面板三段分步（抢通前 → 箭头 → 抢通后）；窗口 = waimo-zx-notif
@@ -125,9 +132,9 @@ export default function SubStepPanels({ world, pub }) {
   const active = world ? PANEL_DEFS.filter((p) => p.when(world, pub)) : [];
   return (
     <>
-      {/* 能开平台节点卡（注册中心为其内嵌子卡）；V3.14：z-index 40——全页最高内容层级，
-          高于连线（14/15）/工具条（20）/日志表（21）/把手（22）/协商层（25）/倍速菜单（30），
-          确保详情面板不被 A2A-T 协作日志等任何区域遮挡 */}
+      {/* 能开平台节点卡（注册中心为其内嵌子卡）；V3.14：z-index 40——画布覆盖层内最高，
+          V5.53：容器 .st-zoomwrap 提升至 z-index 40（transform 层叠上下文曾使面板整体
+          低于工具条/日志表/把手等 .st-layer，被 A2A-T 日志表遮挡）——详情面板全页最高 */}
       <div style={{ position: 'absolute', left: PLATFORM.x, top: PLATFORM.y, width: PLATFORM.w, height: PLATFORM.h,
         zIndex: 40, ...satCssStyle(pub, PLATFORM, center(PLATFORM)) }}>
         <PlatformNodeCard />

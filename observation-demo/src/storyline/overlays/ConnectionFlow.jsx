@@ -18,6 +18,15 @@ import { taskTWindowOf, notifWindowOf } from '../panel-timing';
 const FONT = "'HarmonyOS Sans SC','HarmonyOS Sans','HarmonyHeiTi','Microsoft YaHei','PingFang SC',sans-serif";
 // 彗星三层：[长度, 不透明度, 线宽]，亮头朝运动方向（src → dst）
 const COMET = [[28, 0.95, 3], [70, 0.5, 2.5], [150, 0.2, 2]];
+// V5.57（用户规格）：检索线流光——两层灰渐变条（5rem×0.1875rem 圆角短条近似：
+// 亮头 40@0.8 + 拖尾 80@0.4，rgba(196,196,196,1)，圆头 linecap:round）
+const COMET_SEARCH = [[40, 0.8, 3], [80, 0.4, 3]];
+// V5.57（用户规格）：检索线胶囊（标签）样式——底 #2CB8C926、圆角 0.2rem(3.2)，
+// 文字 #55CCD9、HarmonyOS Sans SC regular 0.6rem(9.6px)/1rem
+const SEARCH_PILL = { bg: '#2CB8C926', fg: '#55CCD9' };
+// V5.57（用户规格）：WAIMO 检索标签放到连线（竖线段 x828.5）左侧、距线 0.25rem
+//（胶囊 40 宽 → x 784.5，原线右侧 x833）
+const WAIMO_PILL_X = 784.5;
 
 // 响应方向（rev）协议胶囊：配色对齐日志徽章（Task-T响应绿 / Negotiation-T响应琥珀）
 const RESP_LABEL = {
@@ -99,7 +108,7 @@ export default function ConnectionFlow({ world, pub }) {
   if (world.negotiation && !world.flows['zx-yx-neg']) held.push('zx-yx-neg');
   if (!active.length && !held.length) return null;
   return (
-    <svg className="st-flow" viewBox="0 0 1920 1080" width="1920" height="1080" aria-hidden="true">
+    <svg className="st-flow" viewBox="0 0 1920 1080" style={{ width: '120rem', height: '67.5rem' }} aria-hidden="true">
       {active.map((key) => {
         const f = FLOWS[key];
         if (!f) return null;
@@ -139,11 +148,18 @@ export default function ConnectionFlow({ world, pub }) {
           || (key === 'waimo-zx-notif' && notifHold)
           || (world.negotiation && (key === 'zx-yx-neg' || key === 'zx-yx-task'))
           || searchLine;
+        // V5.57：检索线胶囊——WAIMO 检索标签移连线左侧（cx 覆盖）、青色系配色/字号
+        const pillCx = searchLine && key === 'reg-waimo-search'
+          ? WAIMO_PILL_X + L.pillBox.w / 2 : cx;
+        const pillX = pillCx - w / 2;
+        const pillBg = searchLine ? SEARCH_PILL.bg : colors.bg;
+        const pillFg = searchLine ? SEARCH_PILL.fg : colors.fg;
+        const pillFont = searchLine ? 9.6 : 12;
         return (
           <g key={key} data-key={key} data-dir={rev ? 'rev' : 'fwd'}>
-            {COMET.map((cfg, i) => (
-              <path key={i} d={d} fill="none" stroke="rgba(220,220,220,1)"
-                strokeWidth={cfg[2]} strokeOpacity={cfg[1]} strokeLinecap="butt"
+            {(searchLine ? COMET_SEARCH : COMET).map((cfg, i) => (
+              <path key={i} d={d} fill="none" stroke={searchLine ? 'rgba(196,196,196,1)' : 'rgba(220,220,220,1)'}
+                strokeWidth={cfg[2]} strokeOpacity={cfg[1]} strokeLinecap={searchLine ? 'round' : 'butt'}
                 strokeDasharray={'0 ' + (150 - cfg[0]) + ' ' + cfg[0] + ' 10000'}
                 strokeDashoffset="150">
                 <animate attributeName="stroke-dashoffset" from="150" to={-len}
@@ -153,10 +169,10 @@ export default function ConnectionFlow({ world, pub }) {
             {colors && text ? (
               <g style={{ transform: ctr, transition: 'transform 0.25s ease' }}>
                 <g className="st-pill" data-key={key}>
-                  <rect x={x} y={L.pillBox.y} width={w} height={L.pillBox.h}
-                    rx="4" fill={colors.bg} />
-                  <text x={cx} y={L.pillBox.y + 16.5} textAnchor="middle"
-                    fontSize="12" fontWeight="400" fontFamily={FONT} fill={colors.fg}>{text}</text>
+                  <rect x={pillX} y={L.pillBox.y} width={w} height={L.pillBox.h}
+                    rx={searchLine ? 3.2 : 4} fill={pillBg} />
+                  <text x={pillCx} y={L.pillBox.y + 16.5} textAnchor="middle"
+                    fontSize={pillFont} fontWeight="400" fontFamily={FONT} fill={pillFg}>{text}</text>
                 </g>
                 {fo.result && base && !searchLine ? (
                   <text className="st-flow-result" x={x + w + 8} y={L.pillBox.y + 16.5}

@@ -5,16 +5,19 @@ import { ORCH_WEIGHTS } from '../../storyline/panel-timing.js'
 /* DynamicOrchestrationPanel — 动态编排详情面板（源自 react-panels）
    V3.26 动态分步（窗口：mini1 激活 → mini2 激活，见 panel-timing orchestrationWindowOf）：
    ①左侧元素（意图卡 + AgentCard 卡）→ ②编排引擎图标（发光箭头 + AI 图标）→
-   ③右侧元素（智能体协作工作流）；各段整组渐入（visibility 隐藏期不参与命中/选中） */
+   ③右侧元素（智能体协作工作流）；各段整组渐入（visibility 隐藏期不参与命中/选中）；
+   V5.56（用户规格）：图示距标题和左右下边沿均 1rem——内容整体上移 20（grp top -20：
+   图示顶 49 = 标题底 33 + 16）、面板高 218→201（图示底 185 + 16 = 201；
+   左右 16/558 原已满足） */
 export default function DynamicOrchestrationPanel(props) {
   const stage = useStageClock(props, 3, ORCH_WEIGHTS)
   const on = (k) => (stage >= k ? ' ir-on' : '')
-  const grp = (k) => ({ className: 'p-abs ir-reveal' + on(k), style: { left: 0, top: 0, width: 574, height: 218 } })
+  const grp = (k) => ({ className: 'p-abs ir-reveal' + on(k), style: { left: 0, top: -20, width: 574, height: 218 } })
   return (
-    <div className="glass-panel" style={{ width: 574, height: 218 }}>
+    <div className="glass-panel" style={{ width: 574, height: 201 }}>
       <div className="p-title-bar" style={{ left: 16, top: 14 }} />
       <div className="p-title-text" style={{ left: 26, top: 11 }}>动态编排</div>
-      <div className="p-subtitle" style={{ left: 16, top: 41 }}>动态生成编排流程</div>
+      {/* V5.53（用户规格）：副标题「动态生成编排流程」删除 */}
 
       {/* ① 左侧：意图 + AgentCard */}
       <div {...grp(1)}>

@@ -37,7 +37,8 @@ export default function NegotiationPanel({ world, pub }) {
   const neg = CASE_NEG[pub.caseId] || CASE_NEG.c1;
   const line = LINES[NEG_LINE_KEY].box;
   const left = Math.round(line.x + line.w / 2 - PANEL_W / 2);
-  const top = Math.round(line.y + line.h + 12);
+  // V5.56（用户规格）：面板距连线 0.25rem（原下缘 +12px → +4px）
+  const top = Math.round(line.y + line.h + 4);
   // 锚点：专线/粤西卡中心中点（面板随两侧卡片刚体平移、保持原比例）
   const ctr = (k) => ({ x: CARDS[k].box.x + CARDS[k].box.w / 2, y: CARDS[k].box.y + CARDS[k].box.h / 2 });
   const aZ = ctr('ZX'), aY = ctr('YX');
