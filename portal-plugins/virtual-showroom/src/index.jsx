@@ -146,11 +146,11 @@ function absoluteUrl(base, ref) {
 }
 
 /** Build the scenario-framework launch URL from the card's `launch` config:
- *  case + agent startup options (enabled agents, autostart, driver) + the
- *  portal's current language are carried as URL params, which the framework
- *  parses and injects (PSOP flow, agent team, replay filter, driver mode, UI
- *  language). `opts` overrides the configured defaults (from the launch
- *  options popover: {driver, agents}). */
+ *  case + agent startup options (enabled agents, autostart, driver, reply
+ *  mode) + the portal's current language are carried as URL params, which the
+ *  framework parses and injects (PSOP flow, agent team, replay filter, driver
+ *  mode, reply mode, UI language). `opts` overrides the configured defaults
+ *  (from the launch options popover: {driver, agents, mode}). */
 function buildLaunchUrl(card, lang, opts) {
     const l = card.launch || {};
     const u = new URL(card.url);
@@ -164,6 +164,10 @@ function buildLaunchUrl(card, lang, opts) {
     if (agents && agents.length) u.searchParams.set('agents', agents.join(','));
     if (st.autoStart === false) u.searchParams.set('autostart', '0');
     if (st.driver === 'mockAgent' || st.driver === 'script') u.searchParams.set('driver', st.driver);
+    // 答复模式（仅 Agent 执行有意义）：省略 = 剧本回放（bank 原样）
+    if (st.driver !== 'script' && (st.mode === 'workflow' || st.mode === 'llm' || st.mode === 'dataset')) {
+        u.searchParams.set('mode', st.mode);
+    }
     u.searchParams.set('src', 'showroom');
     if (lang === 'zh' || lang === 'en') u.searchParams.set('lang', lang);
     return u.href;
@@ -263,9 +267,9 @@ export default function VirtualShowroomPlugin() {
     const [lang, setLang] = useState(detectLang());
     const [state, setState] = useState({ status: 'loading', cards: [], error: '' });
     // launch-options popover: which card's popover is open + the selections
-    // (driver mode + per-agent startup checkboxes) made in it
+    // (driver mode + reply mode + per-agent startup checkboxes) made in it
     const [launchCard, setLaunchCard] = useState(null);
-    const [launchSel, setLaunchSel] = useState({ driver: 'mockAgent', agents: {} });
+    const [launchSel, setLaunchSel] = useState({ driver: 'mockAgent', mode: '', agents: {} });
 
     // follow portal language switches + (re)register i18n resources
     useEffect(() => {
@@ -311,6 +315,9 @@ export default function VirtualShowroomPlugin() {
                 // Agent 执行 is the popover default (real agent launch);
                 // Demo 回放 never launches the agent service.
                 driver: st.driver === 'script' ? 'script' : 'mockAgent',
+                // 答复模式默认空 = 剧本回放；Agent 执行时可切换为
+                // 工作流编排 / LLM 生成 / 数据集匹配（应答由打桩实例实时生成）
+                mode: (st.mode === 'workflow' || st.mode === 'llm' || st.mode === 'dataset') ? st.mode : '',
                 agents: agentsSel,
             });
             setLaunchCard(card.id || card.url);
@@ -328,6 +335,7 @@ export default function VirtualShowroomPlugin() {
         if (launchSel.driver === 'mockAgent') {
             const selected = Object.keys(launchSel.agents).filter((k) => launchSel.agents[k]);
             if (selected.length) opts.agents = selected;
+            if (launchSel.mode) opts.mode = launchSel.mode;
         }
         launchScenario(card, lang, opts);
         setLaunchCard(null);
@@ -466,9 +474,54 @@ export default function VirtualShowroomPlugin() {
                                         </div>
                                         <p className="vs-launch-note">
                                             {launchSel.driver === 'mockAgent'
-                                                ? tr('virtual-showroom.noteAgent', '真实拉起 Agent 服务，消息实时拉取', 'Launches the agent service; messages pulled live')
-                                                : tr('virtual-showroom.noteDemo', '纯本地时间线回放，不拉起 Agent 服务', 'Pure local timeline replay; no agent service launched')}
+                                                ? tr('virtual-showroom.noteAgent', '真实调用 Agent 服务（与 Playground 同一服务进程，单端口多 Agent），消息实时拉取', 'Calls the real agent service (same single process & port as the Playground); messages pulled live')
+                                                : tr('virtual-showroom.noteDemo', '纯本地时间线回放，不调用 Agent 服务', 'Pure local timeline replay; no agent service called')}
                                         </p>
+
+                                        {/* 答复模式 only applies to Agent 执行 — Demo 回放
+                                            replays the scripted bank as-is。
+                                            口径：3 种内容源（固定文本/数据集/LLM）；
+                                            工作流编排为组织方式（实例 workflow.enabled 启用，自动链优先），不作为可选模式 */}
+                                        {launchSel.driver === 'mockAgent' && (
+                                            <>
+                                                <div className="vs-launch-label">
+                                                    {tr('virtual-showroom.launchReplyMode', '答复模式（Agent）', 'Reply mode (Agent)')}
+                                                </div>
+                                                <div className="vs-launch-modes vs-launch-modes-reply">
+                                                    <button
+                                                        type="button"
+                                                        className={`vs-launch-mode${!launchSel.mode ? ' on' : ''}`}
+                                                        onClick={() => setLaunchSel((s) => ({ ...s, mode: '' }))}
+                                                    >
+                                                        <span>{tr('virtual-showroom.replyModeBank', '剧本回放（默认）', 'Bank replay (default)')}</span>
+                                                        <em className="vs-launch-mode-sub">{tr('virtual-showroom.subBank', '固定文本 · 剧本库', 'fixed text · bank')}</em>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={`vs-launch-mode${launchSel.mode === 'dataset' ? ' on agent' : ''}`}
+                                                        onClick={() => setLaunchSel((s) => ({ ...s, mode: 'dataset' }))}
+                                                    >
+                                                        <span>{tr('virtual-showroom.replyModeDataset', '数据集匹配', 'Dataset matching')}</span>
+                                                        <em className="vs-launch-mode-sub">{tr('virtual-showroom.subDataset', '模板检索 · 变量填充', 'template retrieval')}</em>
+                                                    </button>
+                                                    <button
+                                                        type="button"
+                                                        className={`vs-launch-mode${launchSel.mode === 'llm' ? ' on agent' : ''}`}
+                                                        onClick={() => setLaunchSel((s) => ({ ...s, mode: 'llm' }))}
+                                                    >
+                                                        <span>{tr('virtual-showroom.replyModeLlm', 'LLM 生成', 'LLM generation')}</span>
+                                                        <em className="vs-launch-mode-sub">{tr('virtual-showroom.subLlm', '未配 key · 自动降级', 'degrades without key')}</em>
+                                                    </button>
+                                                </div>
+                                                <p className="vs-launch-note">
+                                                    {!launchSel.mode
+                                                        ? tr('virtual-showroom.noteReplyModeBank', '应答为剧本库预置的固定文本（不实时生成）', 'Replies are pre-authored fixed text from the bank (no live generation)')
+                                                        : launchSel.mode === 'llm'
+                                                            ? tr('virtual-showroom.noteReplyModeLlm', '内容源：打桩实例调用大模型生成应答；未配置 key 时自动降级为数据集匹配（演示页会标注降级）', 'Content source: the stub instance calls an LLM; without a key it degrades to dataset matching (marked in the showcase)')
+                                                            : tr('virtual-showroom.noteReplyModeDataset', '内容源：打桩实例按请求模板检索数据集生成应答（模板 + 变量填充）', 'Content source: the stub instance retrieves the dataset by request template (template + variable filling)')}
+                                                </p>
+                                            </>
+                                        )}
 
                                         {/* 智能体启动选项 only applies to Agent 执行 —
                                             Demo 回放 does not launch agents */}
