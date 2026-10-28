@@ -69,9 +69,9 @@ class Graph3DErrorBoundary extends React.Component {
  *   Y = agent lane band (one horizontal layer per agent, first agent on top)
  *   Z = per-lane depth tier, so the stack reads as layers in perspective
  * Deterministic fixed coordinates (fx/fy/fz) — no force jitter. */
-const LANE_GAP = 74;
-const LANE_TIER = 26;
-const STEP_SPACING = 62;
+const LANE_GAP = 118;
+const LANE_TIER = 72;
+const STEP_SPACING = 58;
 const laneY = (i, count) => ((count - 1) / 2 - i) * LANE_GAP;
 const laneZ = (i, count) => (i - (count - 1) / 2) * LANE_TIER;
 
@@ -236,9 +236,9 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                 const width = (graphData.nodes.length - 1) * STEP_SPACING + 100;
                 agents.forEach((a, i) => {
                     const plane = new THREE.Mesh(
-                        new THREE.PlaneGeometry(width, 58),
+                        new THREE.PlaneGeometry(width, 96),
                         new THREE.MeshBasicMaterial({
-                            color: hexOf(a.color), transparent: true, opacity: 0.06,
+                            color: hexOf(a.color), transparent: true, opacity: 0.16,
                             side: THREE.DoubleSide, depthWrite: false,
                         })
                     );
@@ -247,9 +247,9 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                     lg.add(plane);
                     const tag = new SpriteText(pickRef.current(a.name));
                     tag.color = hexOf(a.color);
-                    tag.textHeight = 7;
+                    tag.textHeight = 10;
                     tag.fontWeight = '700';
-                    tag.position.set(-width / 2 - 28, laneY(i, agents.length), laneZ(i, agents.length));
+                    tag.position.set(-width / 2 - 36, laneY(i, agents.length), laneZ(i, agents.length));
                     lg.add(tag);
                 });
                 scene.add(lg);
