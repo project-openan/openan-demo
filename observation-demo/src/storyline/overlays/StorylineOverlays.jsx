@@ -142,7 +142,9 @@ export default function StorylineOverlays() {
   // 拖拽平移：按下目标为卡片/步骤条/平台卡（各自可选中/可点击）时不启动；位移按视口
   // rem 缩放（k）换算回画布坐标系；适应画布（zoomFit）复位平移
   const panDrag = useRef(null);
+  const nodeDown = useRef({ x: 0, y: 0 });
   const onPanDown = (e) => {
+    nodeDown.current = { x: e.clientX, y: e.clientY };
     if (e.target && e.target.closest && e.target.closest('.fl-card, .fl-chip, .platform-card')) return;
     e.currentTarget.setPointerCapture(e.pointerId);
     const rect = document.querySelector('.screen-canvas').getBoundingClientRect();
@@ -154,6 +156,18 @@ export default function StorylineOverlays() {
     pub.api.setPan(d.px + (e.clientX - d.x0) / d.k, d.py + (e.clientY - d.y0) / d.k);
   };
   const onPanUp = () => { panDrag.current = null; };
+  // V6.40（用户规格）：演示中点击拓扑画布区域任意位置暂停回放、再次点击继续——与回放
+  // 按钮共用 api.play() 开关，按钮文字（roles 补丁）与暂停图标（Toolbar）随 mode 发布
+  // 自动跟随；缩放工具条/步骤条 chip/工单列表/日志面板/回放等按钮均在裁剪框外独立层，
+  // 各自交互不受影响；仅 playing/paused 态响应（完成/快照态不触发）；守卫同工单卡/chip
+  // 点击：拖拽超阈值（平移/选字）或存在选中文本不触发
+  const onCanvasClick = (e) => {
+    const d = nodeDown.current;
+    if (Math.abs(e.clientX - d.x) > 5 || Math.abs(e.clientY - d.y) > 5) return;
+    const sel = window.getSelection ? window.getSelection() : null;
+    if (sel && String(sel).length > 0) return;
+    if (pub.mode === 'playing' || pub.mode === 'paused') pub.api.play();
+  };
   return (
     <>
       <style>{glideCss()}</style>
@@ -164,7 +178,8 @@ export default function StorylineOverlays() {
               的 overflow 裁剪语义）；V6.2：裁剪框兼任平移拖拽面（空Canvas 抓取，
               卡片/步骤条/平台卡目标除外）；步骤条已移出（悬浮层，不随 F/Z/pan） */}
           <div className="st-canvasclip"
-            onPointerDown={onPanDown} onPointerMove={onPanMove} onPointerUp={onPanUp} onPointerCancel={onPanUp}>
+            onPointerDown={onPanDown} onPointerMove={onPanMove} onPointerUp={onPanUp} onPointerCancel={onPanUp}
+            onClick={onCanvasClick}>
             <div className="st-zoomz" style={zoomZ}>
               {lineWorld ? <ConnectionLines world={lineWorld} pub={pub} /> : null}
               {/* V6.0（流式布局）：四卡（外壳盒/坐标锚不变）；V6.1：能开平台卡同层

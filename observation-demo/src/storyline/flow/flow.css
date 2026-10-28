@@ -418,7 +418,9 @@
 .fl-logpanel {
   position: absolute;
   z-index: 40;
-  pointer-events: none;
+  /* V6.40（用户规格）：整面接收点击——拖高遮盖拓扑时点击不穿透触发画布暂停/回放
+     （协作日志为排除项；表体/把手/拖条子元素本就 auto，行为不变） */
+  pointer-events: auto;
 }
 .fl-logbg {
   position: absolute;
