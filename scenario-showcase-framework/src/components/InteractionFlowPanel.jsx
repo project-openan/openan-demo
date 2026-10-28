@@ -4,13 +4,14 @@
 // SPDX-License-Identifier: Apache-2.0
 
 /** Bottom-left upper half — the collaboration flow, shown graphically as a
- *  PSOP swimlane collaboration graph (default) or as a vertical stepper list.
- *  Live statuses, agent chips, PSOP step types (SelfLoop/AllSuccess), skills
- *  and task ids. Conference glass theme. */
+ *  3D layered PSOP workflow graph (default), the 2D swimlane graph, or a
+ *  vertical stepper list. Live statuses, agent chips, PSOP step types
+ *  (SelfLoop/AllSuccess), skills and task ids. Conference glass theme. */
 import React, { useState } from 'react';
-import { Check, Circle, Loader2, ListChecks, Repeat, Workflow, Network, Rows3 } from 'lucide-react';
+import { Check, Circle, Loader2, ListChecks, Repeat, Workflow, Network, Rows3, Boxes } from 'lucide-react';
 import { agentColor } from '../colors.js';
 import WorkflowGraph from './WorkflowGraph.jsx';
+import WorkflowGraph3D from './WorkflowGraph3D.jsx';
 
 const STEP_ICONS = ({ status }) => {
     if (status === 'done') return <span className="w-6 h-6 rounded-full bg-emerald-500 flex items-center justify-center shadow-md shadow-emerald-500/20"><Check size={13} className="text-white" strokeWidth={3} /></span>;
@@ -20,7 +21,7 @@ const STEP_ICONS = ({ status }) => {
 
 const InteractionFlowPanel = ({ tr, pick, steps, agents, stepStatus, progressPct }) => {
     const agentById = Object.fromEntries(agents.map((a) => [a.id, a]));
-    const [view, setView] = useState('graph');
+    const [view, setView] = useState('3d');
     const ToggleBtn = ({ id, icon: Icon, label }) => (
         <button
             onClick={() => setView(id)}
@@ -45,13 +46,18 @@ const InteractionFlowPanel = ({ tr, pick, steps, agents, stepStatus, progressPct
                     PSOP · psop_live_event_assurance_en
                 </span>
                 <div className="ml-auto flex items-center gap-1">
+                    <ToggleBtn id="3d" icon={Boxes} label={tr('ss.flow.3d', '3D 视图', '3D view')} />
                     <ToggleBtn id="graph" icon={Network} label={tr('ss.flow.graph', '图形视图', 'Graph view')} />
                     <ToggleBtn id="list" icon={Rows3} label={tr('ss.flow.list', '列表视图', 'List view')} />
                     <span className="ml-1 text-[12px] font-mono text-zinc-400 dark:text-blue-400 tabular-nums">{progressPct}%</span>
                 </div>
             </div>
 
-            {view === 'graph' ? (
+            {view === '3d' ? (
+                <div className="flex-1 min-h-0 px-2 py-2">
+                    <WorkflowGraph3D tr={tr} pick={pick} steps={steps} agents={agents} stepStatus={stepStatus} />
+                </div>
+            ) : view === 'graph' ? (
                 <div className="flex-1 min-h-0 px-2 py-2">
                     <WorkflowGraph pick={pick} steps={steps} agents={agents} stepStatus={stepStatus} />
                 </div>
