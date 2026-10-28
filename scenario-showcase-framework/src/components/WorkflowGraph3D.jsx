@@ -7,14 +7,14 @@
  *  DAG rendered with 3d-force-graph inside a dedicated dark "space" viewport.
  *
  *  Visual language (tech-conference style, works without postprocessing):
- *   璺?nodes = bright self-lit core + wireframe icosahedron shell + additive
- *     radial-glow halo (sprite) 閳?active nodes pulse and carry a tilted
+ *   ·nodes = bright self-lit core + wireframe icosahedron shell + additive
+ *     radial-glow halo (sprite) —active nodes pulse and carry a tilted
  *     rotating orbit ring, done nodes keep a steady agent-colored glow,
  *     pending nodes stay dim gray
- *   璺?edges = gently curved arcs (alternating curvature) with directional
+ *   ·edges = gently curved arcs (alternating curvature) with directional
  *     arrowheads; the active edge streams bright particles, done edges
  *     trickle emerald sparks
- *   璺?ambience = two-layer starfield, exponential fog for depth, slow
+ *   ·ambience = two-layer starfield, exponential fog for depth, slow
  *     auto-rotation until the user grabs the scene, smooth zoom-to-fit
  *
  *  Falls back to the 2D swimlane when WebGL is unavailable. */
@@ -25,7 +25,7 @@ import SpriteText from 'three-spritetext';
 import { agentColor } from '../colors.js';
 import WorkflowGraph from './WorkflowGraph.jsx';
 
-/* Tailwind color keys 閳?hex used by the 3D scene (matches colors.js) */
+/* Tailwind color keys —hex used by the 3D scene (matches colors.js) */
 const HEX = {
     blue: '#3b82f6',
     indigo: '#6366f1',
@@ -63,6 +63,17 @@ class Graph3DErrorBoundary extends React.Component {
     static getDerivedStateFromError() { return { failed: true }; }
     render() { return this.state.failed ? this.props.fallback : this.props.children; }
 }
+
+/* Layered layout (3D echo of the 2D swimlane):
+ *   X = step order (left→right zigzag)
+ *   Y = agent lane band (one horizontal layer per agent, first agent on top)
+ *   Z = per-lane depth tier, so the stack reads as layers in perspective
+ * Deterministic fixed coordinates (fx/fy/fz) — no force jitter. */
+const LANE_GAP = 74;
+const LANE_TIER = 26;
+const STEP_SPACING = 62;
+const laneY = (i, count) => ((count - 1) / 2 - i) * LANE_GAP;
+const laneZ = (i, count) => (i - (count - 1) / 2) * LANE_TIER;
 
 /** Build one node: bright core + wireframe shell + additive glow (+ orbit
  *  ring on active). Registers animatable parts into `reg` for the RAF loop. */
@@ -169,6 +180,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
     const containerRef = useRef(null);
     const fgRef = useRef(null);
     const regRef = useRef(new Map());
+    const laneGroupRef = useRef(null);
     const rafRef = useRef(0);
     const pickRef = useRef(pick);
     const [failed, setFailed] = useState(false);
@@ -195,11 +207,20 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
             source: n.id, target: nodes[i + 1].id, index: i,
             status: stepStatus[steps[i + 1]?.id] || 'pending',
         }));
+        // deterministic swimlane layers: X=step order, Y=agent lane, Z=tier
+        const laneIdx = Object.fromEntries(agents.map((a, i) => [a.id, i]));
+        const cols = nodes.length;
+        nodes.forEach((n, i) => {
+            const li = laneIdx[n.agent] ?? 0;
+            n.fx = (i - (cols - 1) / 2) * STEP_SPACING;
+            n.fy = laneY(li, agents.length);
+            n.fz = laneZ(li, agents.length);
+        });
         return { nodes, links };
     }, [steps, agents]); // eslint-disable-line react-hooks/exhaustive-deps
 
     /* Push the CURRENT graph data + statuses into the mounted instance.
-     * steps/agents arrive ASYNC after the first render 閳?the lib must be
+     * steps/agents arrive ASYNC after the first render —the lib must be
      * re-fed whenever the memo changes (identity check keeps step-status
      * updates cheap: statuses are patched in place, no layout reset). */
     const syncData = React.useCallback(() => {
@@ -207,7 +228,34 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
         if (!fg) return;
         if (fg.graphData() !== graphData) {
             fg.graphData(graphData);
-            // frame the new layout once it settles 閳?do NOT rely on
+            // rebuild the agent lane bands (3D echo of the 2D swimlane stripes)
+            try {
+                const scene = fg.scene();
+                if (laneGroupRef.current) scene.remove(laneGroupRef.current);
+                const lg = new THREE.Group();
+                const width = (graphData.nodes.length - 1) * STEP_SPACING + 100;
+                agents.forEach((a, i) => {
+                    const plane = new THREE.Mesh(
+                        new THREE.PlaneGeometry(width, 58),
+                        new THREE.MeshBasicMaterial({
+                            color: hexOf(a.color), transparent: true, opacity: 0.06,
+                            side: THREE.DoubleSide, depthWrite: false,
+                        })
+                    );
+                    plane.rotation.x = -Math.PI / 2;
+                    plane.position.set(0, laneY(i, agents.length) - 9, laneZ(i, agents.length));
+                    lg.add(plane);
+                    const tag = new SpriteText(pickRef.current(a.name));
+                    tag.color = hexOf(a.color);
+                    tag.textHeight = 7;
+                    tag.fontWeight = '700';
+                    tag.position.set(-width / 2 - 28, laneY(i, agents.length), laneZ(i, agents.length));
+                    lg.add(tag);
+                });
+                scene.add(lg);
+                laneGroupRef.current = lg;
+            } catch (e) { /* ignore */ }
+            // frame the new layout once it settles —do NOT rely on
             // onEngineStop: the frequent status refreshes below re-heat the
             // d3 engine, so a plain engine-stop may never fire mid-replay.
             setTimeout(() => {
@@ -235,10 +283,8 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
         try {
             fg = ForceGraph3D()(el)
                 .backgroundColor('rgba(0,0,0,0)')
-                .dagMode('lr')
-                .dagLevelDistance(60)
                 .nodeRelSize(4.5)
-                .nodeLabel((n) => `${n.end ? 'END' : pickRef.current(n.name)} 璺?${n.agent || ''}`)
+                .nodeLabel((n) => `${n.end ? 'END' : pickRef.current(n.name)} ·${n.agent || ''}`)
                 .nodeThreeObject((n) => nodeObject(n, pickRef.current, regRef.current))
                 .linkCurvature((l) => ((l.index % 2) * 2 - 1) * 0.16)                .linkColor((l) => (l.status === 'done' ? '#34d399' : l.status === 'active' ? '#38bdf8' : '#27272a'))
                 .linkWidth((l) => (l.status === 'active' ? 2.4 : l.status === 'done' ? 1.1 : 0.5))
@@ -251,7 +297,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                 .linkDirectionalArrowRelPos(0.85)
                 .linkDirectionalArrowColor((l) => (l.status === 'active' ? '#7dd3fc' : '#34d399'))
                 .onEngineStop(() => {
-                    // NOTE: zoomToFit(ms, factor) 閳?factor is a zoom MULTIPLIER
+                    // NOTE: zoomToFit(ms, factor) —factor is a zoom MULTIPLIER
                     // (1 = exactly fit), NOT padding. 1.15 leaves a margin.
                     try { fgRef.current?.zoomToFit(900, 1.15); } catch (e) { /* ignore */ }
                 });
@@ -313,6 +359,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                 el.innerHTML = '';
                 fgRef.current = null;
                 regRef.current.clear();
+                laneGroupRef.current = null;
             };
         } catch (e) {
             setFailed(true);
@@ -340,7 +387,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
             </div>
             {/* interaction hint */}
             <div className="absolute right-2.5 bottom-2.5 z-10 pointer-events-none px-2 py-0.5 rounded-md bg-black/45 backdrop-blur-sm border border-white/10 text-[11px] text-zinc-400">
-                {tr('ss.flow3d.hint', '閹锋牗瀚块弮瀣祮 璺?濠婃俺鐤嗙紓鈺傛杹', 'Drag to rotate 璺?Wheel to zoom')}
+                {tr('ss.flow3d.hint', '閹锋牗瀚块弮瀣祮 ·濠婃俺鐤嗙紓鈺傛杹', 'Drag to rotate ·Wheel to zoom')}
             </div>
         </div>
     );
