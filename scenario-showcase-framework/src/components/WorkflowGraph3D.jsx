@@ -256,10 +256,10 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
             fgRef.current = fg;
 
             // animation loop: pulsing glows, spinning shells/rings
-            const clock = new THREE.Clock();
+            const t0 = performance.now();
             const tick = () => {
                 if (disposed) return;
-                const t = clock.getElapsedTime();
+                const t = (performance.now() - t0) / 1000;
                 for (const e of regRef.current.values()) {
                     if (e.shell) { e.shell.rotation.y = t * 0.35; e.shell.rotation.x = t * 0.12; }
                     if (e.active) {
