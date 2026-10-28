@@ -402,7 +402,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
             </div>
             {/* interaction hint */}
             <div className="absolute right-2.5 bottom-2.5 z-10 pointer-events-none px-2 py-0.5 rounded-md bg-black/45 backdrop-blur-sm border border-white/10 text-[11px] text-zinc-400">
-                {tr('ss.flow3d.hint', '閹锋牗瀚块弮瀣祮 ·濠婃俺鐤嗙紓鈺傛杹', 'Drag to rotate ·Wheel to zoom')}
+                {tr('ss.flow3d.hint', '拖拽旋转 · 滚轮缩放', 'Drag to rotate · Wheel to zoom')}
             </div>
         </div>
     );
