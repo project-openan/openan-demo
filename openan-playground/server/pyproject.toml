@@ -13,6 +13,7 @@ dependencies = [
     "python-multipart>=0.0.9",
     "pydantic>=2.7,<3",
     "a2a-t-sdk",
+    "workflow-exec-engine",
 ]
 
 [build-system]
@@ -24,6 +25,7 @@ packages = ["openan_debug"]
 
 [tool.uv.sources]
 a2a-t-sdk = { path = "../../a2a-t-sdk-python", editable = true }
+workflow-exec-engine = { path = "../../workflow-engine-sdk-python", editable = true }
 
 [dependency-groups]
 dev = ["pytest>=8", "pytest-asyncio>=0.24"]

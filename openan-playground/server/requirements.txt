@@ -1,4 +1,6 @@
 a2a-sdk[http-server]==1.2.2
+a2a-t-sdk==1.1.0
+workflow-exec-engine==0.1.0
 fastapi>=0.115,<1
 uvicorn[standard]>=0.34,<1
 sqlalchemy>=2.0,<3
