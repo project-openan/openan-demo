@@ -234,22 +234,37 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                 if (laneGroupRef.current) scene.remove(laneGroupRef.current);
                 const lg = new THREE.Group();
                 const width = (graphData.nodes.length - 1) * STEP_SPACING + 100;
+                const rx = width / 2 + 14;   // ellipse X radius (step span)
+                const rz = 58;               // ellipse Z radius (layer depth)
                 agents.forEach((a, i) => {
-                    const plane = new THREE.Mesh(
-                        new THREE.PlaneGeometry(width, 96),
+                    // elliptical layer base: tinted disc + bright rim
+                    const disc = new THREE.Mesh(
+                        new THREE.CircleGeometry(1, 72),
                         new THREE.MeshBasicMaterial({
                             color: hexOf(a.color), transparent: true, opacity: 0.16,
                             side: THREE.DoubleSide, depthWrite: false,
                         })
                     );
-                    plane.rotation.x = -Math.PI / 2;
-                    plane.position.set(0, laneY(i, agents.length) - 9, laneZ(i, agents.length));
-                    lg.add(plane);
+                    disc.rotation.x = -Math.PI / 2;
+                    disc.scale.set(rx, rz, 1);
+                    disc.position.set(0, laneY(i, agents.length) - 9, laneZ(i, agents.length));
+                    lg.add(disc);
+                    const rim = new THREE.LineLoop(
+                        new THREE.BufferGeometry().setFromPoints(
+                            new THREE.EllipseCurve(0, 0, rx, rz, 0, Math.PI * 2).getPoints(96)
+                        ),
+                        new THREE.LineBasicMaterial({
+                            color: hexOf(a.color), transparent: true, opacity: 0.5,
+                        })
+                    );
+                    rim.rotation.x = -Math.PI / 2;
+                    rim.position.copy(disc.position);
+                    lg.add(rim);
                     const tag = new SpriteText(pickRef.current(a.name));
                     tag.color = hexOf(a.color);
                     tag.textHeight = 10;
                     tag.fontWeight = '700';
-                    tag.position.set(-width / 2 - 36, laneY(i, agents.length), laneZ(i, agents.length));
+                    tag.position.set(-rx - 30, laneY(i, agents.length), laneZ(i, agents.length));
                     lg.add(tag);
                 });
                 scene.add(lg);
