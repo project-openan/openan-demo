@@ -7,14 +7,14 @@
  *  DAG rendered with 3d-force-graph inside a dedicated dark "space" viewport.
  *
  *  Visual language (tech-conference style, works without postprocessing):
- *   · nodes = bright self-lit core + wireframe icosahedron shell + additive
- *     radial-glow halo (sprite) — active nodes pulse and carry a tilted
+ *   璺?nodes = bright self-lit core + wireframe icosahedron shell + additive
+ *     radial-glow halo (sprite) 閳?active nodes pulse and carry a tilted
  *     rotating orbit ring, done nodes keep a steady agent-colored glow,
  *     pending nodes stay dim gray
- *   · edges = gently curved arcs (alternating curvature) with directional
+ *   璺?edges = gently curved arcs (alternating curvature) with directional
  *     arrowheads; the active edge streams bright particles, done edges
  *     trickle emerald sparks
- *   · ambience = two-layer starfield, exponential fog for depth, slow
+ *   璺?ambience = two-layer starfield, exponential fog for depth, slow
  *     auto-rotation until the user grabs the scene, smooth zoom-to-fit
  *
  *  Falls back to the 2D swimlane when WebGL is unavailable. */
@@ -25,7 +25,7 @@ import SpriteText from 'three-spritetext';
 import { agentColor } from '../colors.js';
 import WorkflowGraph from './WorkflowGraph.jsx';
 
-/* Tailwind color keys → hex used by the 3D scene (matches colors.js) */
+/* Tailwind color keys 閳?hex used by the 3D scene (matches colors.js) */
 const HEX = {
     blue: '#3b82f6',
     indigo: '#6366f1',
@@ -78,7 +78,7 @@ function nodeObject(node, pick, reg) {
 
     // self-lit core (MeshBasicMaterial reads "emissive" without lights)
     const core = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(active ? 4.4 : 3.8, 1),
+        new THREE.IcosahedronGeometry(active ? 7 : 6, 1),
         new THREE.MeshBasicMaterial({
             color: node.end ? '#a1a1aa' : (active ? '#ffffff' : done ? agentHex : '#52525b'),
         })
@@ -88,7 +88,7 @@ function nodeObject(node, pick, reg) {
 
     // wireframe tech shell
     const shell = new THREE.Mesh(
-        new THREE.IcosahedronGeometry(node.end ? 6 : (active ? 8.4 : 7), 1),
+        new THREE.IcosahedronGeometry(node.end ? 9 : (active ? 13 : 10.8), 1),
         new THREE.MeshBasicMaterial({
             color: node.end ? '#71717a' : agentHex,
             wireframe: true,
@@ -107,7 +107,7 @@ function nodeObject(node, pick, reg) {
         depthWrite: false,
         opacity: node.end ? 0.12 : (active ? 0.95 : done ? 0.55 : 0.14),
     }));
-    const base = node.end ? 10 : (active ? 34 : done ? 22 : 12);
+    const base = node.end ? 15 : (active ? 52 : done ? 33 : 17);
     glow.scale.set(base, base, 1);
     group.add(glow);
     entry.glow = glow;
@@ -116,14 +116,14 @@ function nodeObject(node, pick, reg) {
     // tilted orbit ring on the active node
     if (active && !node.end) {
         const ring = new THREE.Mesh(
-            new THREE.TorusGeometry(11.5, 0.32, 8, 64),
+            new THREE.TorusGeometry(17, 0.5, 8, 64),
             new THREE.MeshBasicMaterial({ color: '#e0f2fe', transparent: true, opacity: 0.8 })
         );
         ring.rotation.x = Math.PI / 2.6;
         group.add(ring);
         entry.ring = ring;
         const ring2 = new THREE.Mesh(
-            new THREE.TorusGeometry(14.5, 0.18, 8, 64),
+            new THREE.TorusGeometry(21.5, 0.28, 8, 64),
             new THREE.MeshBasicMaterial({ color: agentHex, transparent: true, opacity: 0.45 })
         );
         ring2.rotation.x = Math.PI / 2.1;
@@ -134,9 +134,9 @@ function nodeObject(node, pick, reg) {
     // label
     const label = new SpriteText(node.end ? 'END' : (pick(node.short) || pick(node.name)));
     label.color = node.end ? '#a1a1aa' : (dim ? '#71717a' : '#fafafa');
-    label.textHeight = 6.8;
+    label.textHeight = 11;
     label.fontWeight = '700';
-    label.position.set(0, -16, 0);
+    label.position.set(0, -22, 0);
     label.backgroundColor = 'rgba(9,9,11,0.55)';
     label.padding = 2;
     label.borderRadius = 3;
@@ -198,15 +198,32 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
         return { nodes, links };
     }, [steps, agents]); // eslint-disable-line react-hooks/exhaustive-deps
 
-    /* Patch live statuses onto the mounted graph, rebuild visuals. */
-    useEffect(() => {
+    /* Push the CURRENT graph data + statuses into the mounted instance.
+     * steps/agents arrive ASYNC after the first render 閳?the lib must be
+     * re-fed whenever the memo changes (identity check keeps step-status
+     * updates cheap: statuses are patched in place, no layout reset). */
+    const syncData = React.useCallback(() => {
         const fg = fgRef.current;
         if (!fg) return;
+        if (fg.graphData() !== graphData) {
+            fg.graphData(graphData);
+            // frame the new layout once it settles 閳?do NOT rely on
+            // onEngineStop: the frequent status refreshes below re-heat the
+            // d3 engine, so a plain engine-stop may never fire mid-replay.
+            setTimeout(() => {
+                try { fgRef.current?.zoomToFit(900, 1.15); } catch (e) { /* ignore */ }
+            }, 600);
+        }
         for (const n of graphData.nodes) n.status = n.end ? 'pending' : (stepStatus[n.id] || 'pending');
         for (const l of graphData.links) l.status = stepStatus[l.target?.id || l.target] || 'pending';
         regRef.current.clear();
         fg.refresh();
-    }, [stepStatus, graphData]);
+    }, [graphData, stepStatus]);
+    const syncRef = useRef(null);
+    syncRef.current = syncData;
+
+    /* Reactive data updates (steps arriving, replay status changes). */
+    useEffect(() => { syncData(); }, [syncData]);
 
     /* Mount the 3D scene once. */
     useEffect(() => {
@@ -217,25 +234,26 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
         let fg;
         try {
             fg = ForceGraph3D()(el)
-                .graphData(graphData)
                 .backgroundColor('rgba(0,0,0,0)')
                 .dagMode('lr')
-                .dagLevelDistance(95)
+                .dagLevelDistance(60)
                 .nodeRelSize(4.5)
-                .nodeLabel((n) => `${n.end ? 'END' : pickRef.current(n.name)} · ${n.agent || ''}`)
+                .nodeLabel((n) => `${n.end ? 'END' : pickRef.current(n.name)} 璺?${n.agent || ''}`)
                 .nodeThreeObject((n) => nodeObject(n, pickRef.current, regRef.current))
                 .linkCurvature((l) => ((l.index % 2) * 2 - 1) * 0.16)                .linkColor((l) => (l.status === 'done' ? '#34d399' : l.status === 'active' ? '#38bdf8' : '#27272a'))
                 .linkWidth((l) => (l.status === 'active' ? 2.4 : l.status === 'done' ? 1.1 : 0.5))
                 .linkOpacity(0.9)
                 .linkDirectionalParticles((l) => (l.status === 'active' ? 6 : l.status === 'done' ? 2 : 0))
-                .linkDirectionalParticleWidth((l) => (l.status === 'active' ? 4.2 : 2.4))
+                .linkDirectionalParticleWidth((l) => (l.status === 'active' ? 5 : 2.8))
                 .linkDirectionalParticleColor((l) => (l.status === 'active' ? '#bae6fd' : '#6ee7b7'))
                 .linkDirectionalParticleSpeed(0.014)
                 .linkDirectionalArrowLength((l) => (l.status === 'active' ? 4.6 : l.status === 'done' ? 3 : 0))
                 .linkDirectionalArrowRelPos(0.85)
                 .linkDirectionalArrowColor((l) => (l.status === 'active' ? '#7dd3fc' : '#34d399'))
                 .onEngineStop(() => {
-                    try { fgRef.current?.zoomToFit(900, 80); } catch (e) { /* ignore */ }
+                    // NOTE: zoomToFit(ms, factor) 閳?factor is a zoom MULTIPLIER
+                    // (1 = exactly fit), NOT padding. 1.15 leaves a margin.
+                    try { fgRef.current?.zoomToFit(900, 1.15); } catch (e) { /* ignore */ }
                 });
             fg.d3Force('charge')?.strength(-260);
 
@@ -254,6 +272,8 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
                 controls.addEventListener('start', () => { controls.autoRotate = false; });
             } catch (e) { /* ignore */ }
             fgRef.current = fg;
+            // feed the CURRENT data (steps may already be here on remount)
+            try { syncRef.current?.(); } catch (e) { /* ignore */ }
 
             // animation loop: pulsing glows, spinning shells/rings
             const t0 = performance.now();
@@ -320,7 +340,7 @@ const WorkflowGraph3D = ({ tr, pick, steps, agents, stepStatus }) => {
             </div>
             {/* interaction hint */}
             <div className="absolute right-2.5 bottom-2.5 z-10 pointer-events-none px-2 py-0.5 rounded-md bg-black/45 backdrop-blur-sm border border-white/10 text-[11px] text-zinc-400">
-                {tr('ss.flow3d.hint', '拖拽旋转 · 滚轮缩放', 'Drag to rotate · Wheel to zoom')}
+                {tr('ss.flow3d.hint', '閹锋牗瀚块弮瀣祮 璺?濠婃俺鐤嗙紓鈺傛杹', 'Drag to rotate 璺?Wheel to zoom')}
             </div>
         </div>
     );
