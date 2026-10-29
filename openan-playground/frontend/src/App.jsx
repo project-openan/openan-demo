@@ -5,6 +5,7 @@ import { getToken } from './api.js'
 import { getTheme, toggleTheme } from './theme.js'
 import LoginPage from './pages/Login.jsx'
 import ConsolePage from './pages/Console.jsx'
+import A2atCliPage from './pages/A2atCli.jsx'
 import DatasetPage from './pages/Dataset.jsx'
 import RegistryConsolePage from './pages/RegistryConsole.jsx'
 import OrchestrationConsolePage from './pages/OrchestrationConsole.jsx'
@@ -47,6 +48,7 @@ export default function App() {
     <>
       <Routes>
         <Route path="/" element={<RequireAuth><ConsolePage /></RequireAuth>} />
+        <Route path="/cli" element={<RequireAuth><A2atCliPage /></RequireAuth>} />
         <Route path="/dataset" element={<RequireAuth><DatasetPage /></RequireAuth>} />
         <Route path="/registry" element={<RequireAuth><RegistryConsolePage /></RequireAuth>} />
         <Route path="/orchestration" element={<RequireAuth><OrchestrationConsolePage /></RequireAuth>} />

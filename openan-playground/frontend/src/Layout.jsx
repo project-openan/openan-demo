@@ -82,6 +82,7 @@ export default function Layout({ children }) {
           <NavLink to="/orchestration">{t('nav.orchestration')}</NavLink>
           <NavLink to="/execution">{t('nav.execution')}</NavLink>
           <NavLink to="/" end>{t('nav.a2at')}</NavLink>
+          <NavLink to="/cli">{t('nav.cli')}</NavLink>
           <NavLink to="/dataset">{t('nav.dataset')}</NavLink>
           <NavLink to="/ontology">{t('nav.ontology')}</NavLink>
           <NavLink to="/settings/agents">{t('nav.mockagent')}</NavLink>

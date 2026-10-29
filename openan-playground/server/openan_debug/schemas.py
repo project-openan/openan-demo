@@ -51,6 +51,10 @@ class ConsoleSendRequest(BaseModel):
     instanceId: str | None = None
 
 
+class A2atCliExecRequest(BaseModel):
+    command: str = Field(min_length=1, max_length=4000)
+
+
 class AgentCreate(BaseModel):
     name: str = Field(min_length=1, max_length=128)
     organization: str = "OpenAN"

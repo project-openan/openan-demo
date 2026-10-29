@@ -12,6 +12,7 @@ from .config import Settings, load_settings
 from .db import init_db, make_engine
 from .models import Agent, RequestLog
 from .routers.agents_router import router as agents_router
+from .routers.a2at_cli_router import router as a2at_cli_router
 from .routers.auth_router import router as auth_router
 from .routers.console_router import router as console_router
 from .routers.debug_proxy_router import router as debug_proxy_router
@@ -106,6 +107,7 @@ def create_app(settings: Settings | None = None) -> FastAPI:
     app.include_router(seeds_router)
     app.include_router(variants_router)
     app.include_router(console_router)
+    app.include_router(a2at_cli_router)
     app.include_router(history_router)
     app.include_router(registry_router)
     app.include_router(settings_router)

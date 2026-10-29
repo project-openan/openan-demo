@@ -16,6 +16,7 @@
     "orchestration": "编排中心调测",
     "execution": "执行中心调测",
     "a2at": "A2A-T SDK 调测",
+    "cli": "A2A-T CLI",
     "dataset": "数据集",
     "ontology": "本体调测",
     "mockagent": "MockAgent",
@@ -279,6 +280,20 @@
     "hint": {
       "realTrafficOrDataset": "模板示例自动使用实采报文；或从数据集生成请求 →"
     }
+  },
+  "cli": {
+    "title": "A2A-T CLI",
+    "subtitle": "命令行联调终端（命令规范参考官方 A2A CLI）：发现卡片 / 发送消息 / 任务管理",
+    "welcome1": "A2A-T CLI（OpenAN Playground）— 输入 a2at help 查看命令；输入 a2at version 查看版本。",
+    "welcome2": "目标：缺省为内置 Mock Agent；@实例ID 或实例名打打桩实例；也可直接给 http(s) 端点 URL。",
+    "placeholder": "输入 a2at 命令，例如 a2at send -a default -m \"查询专线状态\"（↑/↓ 历史，Tab 补全）",
+    "running": "… 执行中",
+    "exit": "↳ 退出码 {{code}}",
+    "clear": "清屏",
+    "copy": "复制记录",
+    "copied": "已复制到剪贴板 ✓",
+    "loadFailed": "CLI 请求失败：{{message}}",
+    "hint": "提示：--json 输出协议原生 JSON；send --stream 走 SSE 流式；task get <id> --wait 轮询至终态。命令在后端执行并记录到请求历史（feature=a2at-cli）。"
   },
   "settingsAgents": {
     "title": "Mock Agent 管理",
