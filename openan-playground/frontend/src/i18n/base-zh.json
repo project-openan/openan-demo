@@ -16,6 +16,7 @@
     "orchestration": "编排中心调测",
     "execution": "执行中心调测",
     "a2at": "A2A-T SDK 调测",
+    "cli": "A2A-T CLI",
     "dataset": "数据集",
     "ontology": "本体调测",
     "mockagent": "MockAgent",
@@ -95,6 +96,12 @@
     "loadFailedHttp": "加载失败：HTTP {{status}}",
     "targetService": "目标服务",
     "targetAddress": "目标服务地址：{{url}}",
+    "editTargetTitle": "编辑目标服务地址（保存后立即生效，也可在 设置>目标服务 中配置）",
+    "targetInvalidUrl": "目标地址需以 http:// 或 https:// 开头",
+    "targetSaved": "目标服务地址已保存，立即生效",
+    "targetSaveFailed": "目标服务地址保存失败",
+    "resetTarget": "恢复默认",
+    "resetTargetTitle": "恢复为阿里云默认地址（47.236.98.226:9002 短前缀）",
     "unknown": "未知",
     "viewingHistory": "正在查看历史记录 #{{id}}，可直接修改后重新发送",
     "sending": "发送中…",
@@ -280,6 +287,20 @@
       "realTrafficOrDataset": "模板示例自动使用实采报文；或从数据集生成请求 →"
     }
   },
+  "cli": {
+    "title": "A2A-T CLI",
+    "subtitle": "命令行联调终端（命令规范参考官方 A2A CLI）：发现卡片 / 发送消息 / 任务管理",
+    "welcome1": "A2A-T CLI（OpenAN Playground）— 输入 a2at help 查看命令；输入 a2at version 查看版本。",
+    "welcome2": "目标：缺省为内置 Mock Agent；@实例ID 或实例名打打桩实例；也可直接给 http(s) 端点 URL。",
+    "placeholder": "输入 a2at 命令，例如 a2at send -a default -m \"查询专线状态\"（↑/↓ 历史，Tab 补全）",
+    "running": "… 执行中",
+    "exit": "↳ 退出码 {{code}}",
+    "clear": "清屏",
+    "copy": "复制记录",
+    "copied": "已复制到剪贴板 ✓",
+    "loadFailed": "CLI 请求失败：{{message}}",
+    "hint": "提示：--json 输出协议原生 JSON；send --stream 走 SSE 流式；task get <id> --wait 轮询至终态。命令在后端执行并记录到请求历史（feature=a2at-cli）。"
+  },
   "settingsAgents": {
     "title": "Mock Agent 管理",
     "descPrefix": "当前不支持在页面创建 Mock Agent：Agent 由 ",
@@ -357,7 +378,7 @@
   },
   "settingsUrls": {
     "title": "服务地址",
-    "desc": "配置各目标服务的 Base URL，调测台将通过 /openan-playground/api/v1/debug-proxy 转发请求。默认地址直接写阿里云 IP（47.236.98.226:9004），经 nginx 短前缀转发到服务器内部服务：/rc/ → 注册中心(5000)，/oc/ → 编排中心(5001)，/a2a/ → 本系统 Mock Agent(9100)，/ot/ → 本体(8787)。",
+    "desc": "配置各目标服务的 Base URL，调测台将通过 /openan-playground/api/v1/debug-proxy 转发请求（调测台顶栏也可就地编辑单个目标）。默认地址直接写阿里云 IP（47.236.98.226:9002），经 nginx 短前缀转发到服务器内部服务：/rc/ → 注册中心(5000)，/oc/ → 编排中心(5001)，/a2a/ → 本系统 Mock Agent(9100)，/ot/ → 本体(8787)。",
     "registry": "注册中心",
     "orchestration": "编排中心",
     "executionHost": "执行中心（宿主 Agent）",

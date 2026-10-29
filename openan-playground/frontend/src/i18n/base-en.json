@@ -16,6 +16,7 @@
     "orchestration": "Orchestration",
     "execution": "Execution",
     "a2at": "A2A-T SDK",
+    "cli": "A2A-T CLI",
     "dataset": "Dataset",
     "ontology": "Ontology",
     "mockagent": "MockAgent",
@@ -95,6 +96,12 @@
     "loadFailedHttp": "Load failed: HTTP {{status}}",
     "targetService": "Target service",
     "targetAddress": "Target service URL: {{url}}",
+    "editTargetTitle": "Edit target service URL (takes effect immediately; also configurable in Settings > Target services)",
+    "targetInvalidUrl": "Target URL must start with http:// or https://",
+    "targetSaved": "Target service URL saved and applied immediately",
+    "targetSaveFailed": "Failed to save the target service URL",
+    "resetTarget": "Reset default",
+    "resetTargetTitle": "Restore the Aliyun default (47.236.98.226:9002 short prefixes)",
     "unknown": "Unknown",
     "viewingHistory": "Viewing history #{{id}} — edit and resend directly",
     "sending": "Sending…",
@@ -280,6 +287,20 @@
       "realTrafficOrDataset": "Template examples automatically use captured traffic; or generate a request from a dataset →"
     }
   },
+  "cli": {
+    "title": "A2A-T CLI",
+    "subtitle": "Command-line terminal for integration testing (spec modeled on the official A2A CLI): card discovery / messaging / task management",
+    "welcome1": "A2A-T CLI (OpenAN Playground) — type 'a2at help' for commands, 'a2at version' for the version.",
+    "welcome2": "Targets: default = built-in Mock Agent; '@<instance-id>' or instance name targets a stub instance; an http(s) endpoint URL also works.",
+    "placeholder": "Type an a2at command, e.g. a2at send -a default -m \"query private line\" (↑/↓ history, Tab completion)",
+    "running": "… running",
+    "exit": "↳ exit code {{code}}",
+    "clear": "Clear",
+    "copy": "Copy log",
+    "copied": "Copied to clipboard ✓",
+    "loadFailed": "CLI request failed: {{message}}",
+    "hint": "Tips: --json prints protocol-native JSON; send --stream consumes the SSE stream; task get <id> --wait polls to a terminal state. Commands run server-side and are logged to request history (feature=a2at-cli)."
+  },
   "settingsAgents": {
     "title": "Mock Agent Management",
     "descPrefix": "Creating Mock Agents from the UI is not supported yet: Agents are auto-registered by stub instances from ",
@@ -357,7 +378,7 @@
   },
   "settingsUrls": {
     "title": "Service URLs",
-    "desc": "Configure the Base URL of each target service; the console forwards requests through /openan-playground/api/v1/debug-proxy. Default addresses point directly to the Aliyun IP (47.236.98.226:9004) and are forwarded by nginx short prefixes to the server's internal services: /rc/ → Registry (5000), /oc/ → Orchestration (5001), /a2a/ → this system's Mock Agent (9100), /ot/ → Ontology (8787).",
+    "desc": "Configure the Base URL of each target service; the console forwards requests through /openan-playground/api/v1/debug-proxy (the console top bar also allows editing a single target inline). Default addresses point directly to the Aliyun IP (47.236.98.226:9002) and are forwarded by nginx short prefixes to the server's internal services: /rc/ → Registry (5000), /oc/ → Orchestration (5001), /a2a/ → this system's Mock Agent (9100), /ot/ → Ontology (8787).",
     "registry": "Registry",
     "orchestration": "Orchestration",
     "executionHost": "Execution (Host Agent)",

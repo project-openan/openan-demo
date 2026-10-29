@@ -1103,7 +1103,7 @@ button.small, .btn.small { padding: 4px 10px; font-size: 12px; }
 .pm-title { font-size: 15px; font-weight: 700; color: var(--text-primary); }
 .pm-sub { font-size: 12px; color: var(--text-muted); margin-top: 2px; }
 
-.pm-target { font-size: 12px; color: var(--text-muted); text-align: right; max-width: 46%; }
+.pm-target { font-size: 12px; color: var(--text-muted); text-align: right; max-width: 60%; }
 
 .pm-target code {
   font-family: Consolas, monospace;
@@ -1114,7 +1114,33 @@ button.small, .btn.small { padding: 4px 10px; font-size: 12px; }
   padding: 1px 6px;
 }
 
-.pm-target-url { display: block; font-family: Consolas, monospace; margin-top: 3px; color: var(--text-faint); overflow: hidden; text-overflow: ellipsis; white-space: nowrap; }
+/* 目标服务地址完整显示（不再省略号截断），过长时自动换行 */
+.pm-target-url { display: block; font-family: Consolas, monospace; margin-top: 3px; color: var(--text-faint); white-space: normal; word-break: break-all; }
+.pm-target-url-text { display: inline; }
+.pm-target-edit-btn {
+  border: none;
+  background: transparent;
+  color: var(--text-faint);
+  cursor: pointer;
+  font-size: 12px;
+  padding: 0 4px;
+  vertical-align: middle;
+}
+.pm-target-edit-btn:hover { color: var(--accent-indigo); }
+.pm-target-edit { display: inline-flex; flex-wrap: wrap; gap: 6px; margin-top: 4px; justify-content: flex-end; }
+.pm-target-input {
+  font-family: Consolas, monospace;
+  font-size: 12px;
+  padding: 3px 8px;
+  min-width: 260px;
+  border: 1px solid var(--border-color);
+  border-radius: 6px;
+  background: var(--bg-input, transparent);
+  color: var(--text-primary);
+}
+.pm-target-hint { display: block; margin-top: 3px; font-size: 11px; }
+.pm-target-hint.ok { color: var(--success-text, #34d399); }
+.pm-target-hint.err { color: var(--error-text, #f87171); }
 
 .pm-hist-banner {
   display: flex;
@@ -1392,3 +1418,46 @@ button.kv-del:hover:not(:disabled) { transform: none; box-shadow: none; backgrou
   .pm-response { min-height: 260px; }
   .pm-resp-body { min-height: 210px; }
 }
+
+/* ===== A2A-T CLI 终端页（/cli） ===== */
+.cli-page { display: flex; flex-direction: column; gap: 12px; height: 100%; min-height: 0; }
+.cli-chips { display: flex; gap: 8px; flex-wrap: wrap; }
+.cli-chip {
+  font-family: 'Cascadia Mono', 'Consolas', monospace;
+  font-size: 12px; color: var(--text-secondary);
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 999px;
+  padding: 4px 12px; cursor: pointer; transition: all 0.15s;
+}
+.cli-chip:hover:not(:disabled) { border-color: var(--accent-blue); color: var(--accent-blue); box-shadow: var(--glow-blue); }
+.cli-chip:disabled { opacity: 0.5; cursor: default; }
+
+.cli-terminal {
+  flex: 1; min-height: 0; display: flex; flex-direction: column;
+  background: var(--bg-card); border: 1px solid var(--border); border-radius: 12px;
+  box-shadow: var(--shadow-sm); overflow: hidden;
+}
+.cli-output {
+  flex: 1; min-height: 320px; overflow: auto; padding: 14px 16px;
+  font-family: 'Cascadia Mono', 'Consolas', monospace; font-size: 12.5px; line-height: 1.62;
+  white-space: pre-wrap; word-break: break-word;
+}
+.cli-line { color: var(--text-secondary); }
+.cli-line.cmd { color: var(--accent-blue); font-weight: 600; }
+.cli-line.err { color: var(--danger); }
+.cli-line.sys { color: var(--text-faint); }
+.cli-line.meta { color: var(--text-faint); font-size: 11.5px; }
+.cli-line.out { color: var(--text-secondary); }
+.cli-line.json { color: var(--text-muted); background: var(--bg-code); border-radius: 8px; padding: 8px 10px; margin: 4px 0; white-space: pre; overflow-x: auto; }
+
+.cli-input-row {
+  display: flex; align-items: center; gap: 10px;
+  border-top: 1px solid var(--border); padding: 10px 16px; background: var(--bg-toolbar);
+}
+.cli-prompt { font-family: 'Cascadia Mono', 'Consolas', monospace; font-size: 13px; font-weight: 700; color: var(--accent-blue); }
+.cli-input {
+  flex: 1; border: none; outline: none; background: transparent;
+  font-family: 'Cascadia Mono', 'Consolas', monospace; font-size: 13px; color: var(--text-primary);
+}
+.cli-input::placeholder { color: var(--text-faint); }
+.cli-input:disabled { opacity: 0.6; }
+.cli-hint { font-size: 11.5px; }

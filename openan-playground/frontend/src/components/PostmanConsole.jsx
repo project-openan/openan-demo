@@ -1,8 +1,18 @@
 import { useCallback, useEffect, useRef, useState } from 'react'
 import { useTranslation } from 'react-i18next'
 import { api } from '../api.js'
+import { readJwtPayload } from '../jwt.js'
 import AgentCardForm, { emptyAgentCard, validateAgentCard } from './AgentCardForm.jsx'
 import JsonView from '../JsonView.jsx'
+
+// 目标服务默认地址（阿里云 47.236.98.226:9002 nginx 短前缀，与后端 SERVICE_URL_DEFAULTS 一致）。
+// 调测台可在顶栏就地编辑；设置>目标服务 页面提供全局配置。
+const SERVICE_URL_FALLBACKS = {
+  registryUrl: 'http://47.236.98.226:9002/rc',
+  orchestrationUrl: 'http://47.236.98.226:9002/oc',
+  executionHostUrl: 'http://47.236.98.226:9002/a2a',
+  ontologyUrl: 'http://47.236.98.226:9002/ot',
+}
 
 const METHOD_OPTIONS = ['GET', 'POST', 'PUT', 'DELETE', 'PATCH']
 const STATUS_TEXT = {
@@ -165,7 +175,55 @@ export default function PostmanConsole({
   const [activeHistId, setActiveHistId] = useState(null)
   const sendRef = useRef(null)
 
-  const baseUrl = targets ? (targets[targetKey] || t('postman.unknown')) : t('common.loading')
+  const isAdmin = readJwtPayload().role === 'admin'
+  const baseUrl = targets
+    ? (targets[targetKey] || SERVICE_URL_FALLBACKS[targetKey] || t('postman.unknown'))
+    : t('common.loading')
+
+  const [editingTarget, setEditingTarget] = useState(false)
+  const [targetDraft, setTargetDraft] = useState('')
+  const [targetSaving, setTargetSaving] = useState(false)
+  const [targetHint, setTargetHint] = useState(null)
+
+  function startEditTarget() {
+    setTargetHint(null)
+    setTargetDraft(baseUrl === t('postman.unknown') || baseUrl === t('common.loading') ? (SERVICE_URL_FALLBACKS[targetKey] || '') : baseUrl)
+    setEditingTarget(true)
+  }
+
+  async function saveTargetUrl(value) {
+    const url = value.trim().replace(/\/+$/, '')
+    if (!/^https?:\/\//i.test(url)) {
+      setTargetHint({ kind: 'err', text: t('postman.targetInvalidUrl') })
+      return false
+    }
+    setTargetSaving(true)
+    try {
+      const next = await api.put('/debug/api/v1/settings/service-urls', { [targetKey]: url })
+      setTargets((prev) => ({ ...(prev || {}), ...next }))
+      setTargetHint({ kind: 'ok', text: t('postman.targetSaved') })
+      return true
+    } catch (err) {
+      setTargetHint({ kind: 'err', text: err.message || t('postman.targetSaveFailed') })
+      return false
+    } finally {
+      setTargetSaving(false)
+    }
+  }
+
+  async function saveTarget() {
+    if (await saveTargetUrl(targetDraft)) setEditingTarget(false)
+  }
+
+  async function resetTarget() {
+    const fallback = SERVICE_URL_FALLBACKS[targetKey]
+    if (!fallback) return
+    if (await saveTargetUrl(fallback)) {
+      setTargetDraft(fallback)
+      setEditingTarget(false)
+    }
+  }
+
   const pathBase = urlPath.split('?')[0]
   const enabledParamCount = params.filter((item) => item.enabled && item.key.trim()).length
   const enabledHeaderCount = headers.filter((item) => item.enabled && item.key.trim()).length
@@ -590,7 +648,33 @@ export default function PostmanConsole({
             {topbarExtra && <div className="pm-topbar-extra">{topbarExtra}</div>}
             <div className="pm-target">
               {t('postman.targetService')} <code>{`{{${targetLabel}}}`}</code>
-              <span className="pm-target-url" title={targetOverride || baseUrl}>{targetOverride || baseUrl}</span>
+              {editingTarget ? (
+                <span className="pm-target-edit">
+                  <input
+                    className="pm-target-input mono-text"
+                    value={targetDraft}
+                    onChange={(e) => setTargetDraft(e.target.value)}
+                    onKeyDown={(e) => {
+                      if (e.key === 'Enter') saveTarget()
+                      if (e.key === 'Escape') setEditingTarget(false)
+                    }}
+                    placeholder={SERVICE_URL_FALLBACKS[targetKey] || 'http://'}
+                    spellCheck={false}
+                    autoFocus
+                  />
+                  <button type="button" className="btn small" onClick={saveTarget} disabled={targetSaving}>{t('common.save')}</button>
+                  <button type="button" className="btn ghost small" onClick={resetTarget} disabled={targetSaving} title={t('postman.resetTargetTitle')}>{t('postman.resetTarget')}</button>
+                  <button type="button" className="btn ghost small" onClick={() => setEditingTarget(false)}>{t('common.cancel')}</button>
+                </span>
+              ) : (
+                <span className="pm-target-url" title={targetOverride || baseUrl}>
+                  <span className="pm-target-url-text">{targetOverride || baseUrl}</span>
+                  {isAdmin && !targetOverride && (
+                    <button type="button" className="pm-target-edit-btn" title={t('postman.editTargetTitle')} onClick={startEditTarget}>✎</button>
+                  )}
+                </span>
+              )}
+              {targetHint && <span className={`pm-target-hint ${targetHint.kind}`}>{targetHint.text}</span>}
             </div>
           </div>
         </div>
