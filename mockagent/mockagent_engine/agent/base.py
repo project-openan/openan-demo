@@ -1,4 +1,21 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2026 Huawei Technologies Co., Ltd.
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 """打桩 Agent 基类：引擎提供默认行为，具体 Agent 在 agents/<id>/agent.py 中继承并重写钩子，
 以承载差异化能力（域内意图→模板推断、请求/响应定制、运行时扩展等）。"""
 from __future__ import annotations

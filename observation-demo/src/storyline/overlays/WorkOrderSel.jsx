@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // WorkOrderSel.jsx — 工单卡对号角标（选中卡）
 // V2.7：整卡点击切换案例由 LayerView interactions 直接挂接在设计 DOM 卡片容器上（无覆盖按钮），
 // 卡内文字（工单号/客户/描述）可正常选中复制；拖拽选字不触发切换（见 StorylineContext interactions）

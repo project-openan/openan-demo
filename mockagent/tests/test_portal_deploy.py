@@ -1,4 +1,21 @@
 # -*- coding: utf-8 -*-
+# Copyright (c) 2026 Huawei Technologies Co., Ltd.
+# All Rights Reserved.
+#
+# SPDX-License-Identifier: Apache-2.0
+#
+#    Licensed under the Apache License, Version 2.0 (the "License"); you may
+#    not use this file except in compliance with the License. You may obtain
+#    a copy of the License at
+#
+#         http://www.apache.org/licenses/LICENSE-2.0
+#
+#    Unless required by applicable law or agreed to in writing, software
+#    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+#    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+#    License for the specific language governing permissions and limitations
+#    under the License.
+
 """场景 Portal 一键部署测试：网关（静态+反代）/ 配置加载 / 卡片生成 / server.conf 改写。
 
 不真实拉起 registry/orch（外部仓库依赖），组件级单测 + 真实网关反代（临时上游）。
