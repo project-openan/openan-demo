@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // textWrap.js — 文本折行计算（V5：气泡/卡片高度包裹文字）
 // V5.32（用户反馈"Task-T 消息超出气泡"根治）：改 canvas measureText 按真实字体度量——
 // 原估宽（CJK 12px/西文 6.5px）与实际渲染字体存在偏差（雅黑西文字宽 > 6.5px，latin 密集

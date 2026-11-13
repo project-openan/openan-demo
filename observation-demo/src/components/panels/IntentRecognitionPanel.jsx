@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // IntentRecognitionPanel.jsx — 投诉识别：意图识别（ReAct 推理环）
 // V3.21 动态分步呈现：面板随 WAIMO mini0 激活窗口挂载，内容按窗口进度渐入——
 // 已出现的步骤常驻累计，窗口末态 = 设计全量版式；中央 LLM 图标与面板标题常驻，

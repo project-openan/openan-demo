@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // NodeCard.jsx — V6.0 流式布局：四张智能体节点卡（覆盖层流式组件）
 // V6.2（用户规格）版式：垂直链 = 上边沿 1rem→图标→0.75rem→标题→0.75rem→
 // 技能标签（文字 0.75rem）→[ZX 编排中心子卡 5.75×1.75rem 居间]→1.5rem→

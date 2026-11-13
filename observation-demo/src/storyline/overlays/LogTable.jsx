@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // LogTable.jsx — 实时日志表（覆盖层渲染）：回放态逐条追加自动滚底；快照点亮态全量日志可滚动
 // 点击行展开完整 A2A-T Prompt；滚动条样式对齐设计稿（6px 圆角深灰滑块）
 // 数据来自 case-data.js（case1/case2 参考数据）；斑马纹对齐设计稿表格（偶数行 rgba(119,119,119,0.15)）

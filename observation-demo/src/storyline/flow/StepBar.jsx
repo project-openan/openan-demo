@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // StepBar.jsx — V6.0 流式布局：步骤条（七枚箭头 chip 横向 flex）
 // 设计 chip 四节点（背板/图标/标题/时长）整组隐藏（roles.js FLOW_HIDE），本组件重建：
 // chip 宽恒 221.29（.fl-chip 13.830625rem）、行首 x338 y174——房间条竖线/胶囊/组间连线

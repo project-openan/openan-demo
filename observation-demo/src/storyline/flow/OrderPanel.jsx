@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // OrderPanel.jsx — V6.0 流式布局：工单区域工单卡（覆盖层流式组件）
 // 设计工单卡子树（ORDERS.c1/c2）整组隐藏（roles.js FLOW_HIDE），本组件按同一列表槽位
 //（24,170 起、卡 256×142、间距 16）重建，卡内纵向流式：工单号 → [图标+客户名+状态胶囊] →
