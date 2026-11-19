@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // SubStepPanels.jsx — 能开平台节点卡（替代注册中心设计节点）+ 子步骤执行期详情面板
 // V3.7：组件源自 A2A-T移动样板间展屏设计-V3.1/react-panels（复制入 src/components/panels/）；
 // 平台卡 144×142 中心与原注册中心节点中心重合（441,305），reg-* 检索线起点随之改锚卡右缘 514；

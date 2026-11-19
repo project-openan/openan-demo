@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // StorylineOverlays.jsx — 覆盖层总装
 // 快照态（默认加载）：仅渲染透明交互层（回放工具栏/工单卡/缩放按钮/日志传感器），画面与设计稿逐像素一致
 // （例外为用户要求的有意偏差：房间白色高亮底默认隐藏、第二条日志改文字、占位文案粤东/粤西化）

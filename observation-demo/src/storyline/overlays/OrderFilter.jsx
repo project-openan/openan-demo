@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // OrderFilter.jsx — 左侧工单状态筛选（V5.13 用户规格：根据状态筛选工单）
 // 设计「筛选」区（工单列表标题右侧，画布 206,74.91 74×20 = 区域本地 +左栏根 y48）：
 // 标签文字（I23:137104;3:27462;2:29596）随所选状态补丁更新、下拉箭头切图保留；

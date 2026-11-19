@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // Toolbar.jsx — 工具栏透明点击层（回放/单步/倍速/停止）+ 倍速下拉 + 播放态暂停图标
 // V5.57 曾在按钮内叠覆盖层文字（.st-tbtn-text）与设计烤入文字「回放」（23:137028）
 // 重合（用户反馈"2 个重合的"）——V5.58 废止覆盖层，文字切换改由 roles.js 补丁

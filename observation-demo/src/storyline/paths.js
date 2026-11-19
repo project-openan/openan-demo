@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // 由 codegen/export-storyline-data.js 生成，勿手改；设计重生成后请重新运行导出
 // 连线 SVG 路径（几何取自高保真导出图像素分析）
 // 用户偏差（V2.5）：检索线箭头改为指向目标卡（原设计指向注册中心）

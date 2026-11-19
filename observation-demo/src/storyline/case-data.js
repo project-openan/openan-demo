@@ -1,3 +1,19 @@
+// Copyright (c) 2026 Huawei Technologies Co., Ltd.
+// All Rights Reserved.
+//
+// SPDX-License-Identifier: Apache-2.0
+//
+//    Licensed under the Apache License, Version 2.0 (the "License"); you may
+//    not use this file except in compliance with the License. You may obtain
+//    a copy of the License at
+//
+//         http://www.apache.org/licenses/LICENSE-2.0
+//
+//    Unless required by applicable law or agreed to in writing, software
+//    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+//    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+//    License for the specific language governing permissions and limitations
+//    under the License.
 // case-data.js — A2A-T 协作日志参考数据（与《故事线方案文档.md》§1.7/§2.7 同步维护）
 // t 为历史排序源（仅保证数组顺序；回放事件时刻以 cases.js events 为准）；
 // clock 为占位初始值（base+t），回放时钟由 cases.js CLOCKS 定稿值覆写
