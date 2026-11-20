@@ -1,3 +1,20 @@
+REM Copyright (c) 2026 Huawei Technologies Co., Ltd.
+REM All Rights Reserved.
+REM
+REM SPDX-License-Identifier: Apache-2.0
+REM
+REM    Licensed under the Apache License, Version 2.0 (the "License"); you may
+REM    not use this file except in compliance with the License. You may obtain
+REM    a copy of the License at
+REM
+REM         http://www.apache.org/licenses/LICENSE-2.0
+REM
+REM    Unless required by applicable law or agreed to in writing, software
+REM    distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+REM    WARRANTIES OR CONDITIONS OF ANY KIND, either express or implied. See the
+REM    License for the specific language governing permissions and limitations
+REM    under the License.
+
 @echo off
 REM One-shot deploy for openan-debug -> root@203.0.113.10
 REM Usage:  run-deploy.cmd [password]
